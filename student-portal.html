@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StudentHub — Student Portal</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<link rel="stylesheet" href="assets/css/style.css" />
+<style>
+  body { background: #f1f5fb; }
+  .back-link { color: var(--text-muted); font-size: 13px; text-decoration: none; font-weight: 500; }
+  .back-link:hover { color: var(--primary-dark); }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="portal-top anim-fade-up">
+  <div class="brand-badge" style="font-size:16px;color:var(--primary-dark);">
+    <div class="brand-logo" style="width:38px;height:38px;font-size:16px;"><i class="fa-solid fa-graduation-cap"></i></div>
+    <b>StudentHub</b> <span class="badge bg-soft-primary" style="font-size:11px;">Student Portal</span>
+  </div>
+  <div class="ms-auto d-flex align-items-center gap-3">
+    <div class="avatar-chip">
+      <img class="avatar" id="navAvatar" src="" alt="" />
+      <div class="d-none d-md-block" style="text-align:right;">
+        <b style="font-size:13.5px;" id="navName"></b><br />
+        <span class="muted" style="font-size:11.5px;" id="navId"></span>
+      </div>
+    </div>
+    <button class="logout-btn" title="Logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+  </div>
+</div>
+
+<div class="container-fluid px-lg-4 py-4" style="max-width:1200px;">
+
+  <!-- Hero -->
+  <div class="portal-hero mb-4 anim-fade-up">
+    <div class="wave-line"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="d-flex flex-sm-row flex-column align-items-sm-center gap-3 position-relative" style="z-index:2;">
+      <img class="avatar-lg" id="heroAvatar" src="" alt="" />
+      <div class="flex-grow-1">
+        <div class="fs-5 fw-bold" id="heroName">Loading...</div>
+        <div class="small opacity-75" id="heroSub"></div>
+        <span class="badge mt-1" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);" id="heroId">—</span>
+      </div>
+      <div class="row g-2 col-sm-8 col-lg-6">
+        <div class="col-6">
+          <div class="stat-pill text-center">
+            <div class="fs-4 fw-bold" id="pillAttendance">—</div>
+            <div class="small opacity-75">Attendance</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="stat-pill text-center">
+            <div class="fs-4 fw-bold" id="pillFee">—</div>
+            <div class="small opacity-75">Fee Status</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- News ticker -->
+  <div class="news-ticker mb-4 anim-fade-up d1">
+    <div class="ticker-track">
+      🎉 Welcome to Student Portal — QR Code scan karke daily attendance mark karein &nbsp;•&nbsp; Fee pending ho to jald pay karein &nbsp;•&nbsp; Attendance 75% se kam hai to alert milegi &nbsp;•&nbsp; StudentHub — Demo Template
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- LEFT: Identity + QR -->
+    <div class="col-lg-4 anim-fade-up d2">
+      <div class="card card-soft p-4 text-center h-100">
+        <img class="avatar-lg mx-auto" id="leftAvatar" src="" alt="" />
+        <h5 class="mt-3 mb-0 fw-bold" id="leftName">—</h5>
+        <span class="badge bg-soft-primary mt-1" id="leftId">—</span>
+        <p class="muted mt-2 mb-3" style="font-size:13px;" id="leftCourse">—</p>
+
+        <div class="card p-3" style="background:#f8fafc;">
+          <div class="muted" style="font-size:11.5px;">My QR Code — class mein scan kariye</div>
+          <div class="d-flex justify-content-center my-2">
+            <div style="width:140px;height:140px;background:#fff;border-radius:14px;display:grid;place-items:center;padding:8px;box-shadow:var(--shadow-sm);">
+              <img id="leftQR" src="" style="width:100%;height:100%;" alt="QR Code" />
+            </div>
+          </div>
+          <button class="btn-grad" style="padding:8px;font-size:12.5px;" onclick="printQR()">
+            <i class="fa-solid fa-arrow-down me-1"></i> Download ID Card
+          </button>
+        </div>
+
+        <div class="text-start mt-3">
+          <h6 class="fw-bold mb-2"><i class="fa-solid fa-user me-1 text-primary"></i>Profile Details</h6>
+          <div class="d-flex flex-column gap-2" style="font-size:13.5px;">
+            <div class="d-flex justify-content-between border-bottom pb-1" style="border-color:#f1f5f9!important;"><span class="muted">Father Name</span><b id="dFather">—</b></div>
+            <div class="d-flex justify-content-between border-bottom pb-1" style="border-color:#f1f5f9!important;"><span class="muted">Phone</span><b id="dPhone">—</b></div>
+            <div class="d-flex justify-content-between border-bottom pb-1" style="border-color:#f1f5f9!important;"><span class="muted">Email</span><b id="dEmail" style="font-size:12.5px;">—</b></div>
+            <div class="d-flex justify-content-between border-bottom pb-1" style="border-color:#f1f5f9!important;"><span class="muted">Address</span><b id="dAddress" style="font-size:12.5px;text-align:right;">—</b></div>
+            <div class="d-flex justify-content-between border-bottom pb-1" style="border-color:#f1f5f9!important;"><span class="muted">Admission</span><b id="dAdmission">—</b></div>
+            <div class="d-flex justify-content-between"><span class="muted">Batch</span><b id="dBatch">—</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Stats + history -->
+    <div class="col-lg-8">
+      <div class="row g-3">
+        <div class="col-sm-6 anim-fade-up d2">
+          <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3 h-100">
+            <div class="stat-icon bg-grad-success" style="width:48px;height:48px;font-size:18px;"><i class="fa-solid fa-chart-simple"></i></div>
+            <div>
+              <div class="stat-value" style="font-size:22px;" id="attPercent">—</div>
+              <div class="stat-label">Attendance (<span id="attPresent">—</span>/<span id="attTotal">—</span>)</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 anim-fade-up d3">
+          <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3 h-100">
+            <div class="stat-icon" style="width:48px;height:48px;font-size:18px;background:var(--success-light);color:#047857;"><i class="fa-solid fa-money-check-dollar"></i></div>
+            <div>
+              <div class="stat-value" style="font-size:22px;" id="feeStatus">—</div>
+              <div class="stat-label" id="feeMonth">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 anim-fade-up d3">
+          <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3 h-100">
+            <div class="stat-icon bg-grad-info" style="width:48px;height:48px;font-size:18px;"><i class="fa-solid fa-book-open"></i></div>
+            <div>
+              <div class="stat-value" style="font-size:18px;" id="statCourse">—</div>
+              <div class="stat-label">Course</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 anim-fade-up d4">
+          <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3 h-100">
+            <div class="stat-icon" style="width:48px;height:48px;font-size:18px;background:var(--warning-light);color:#b45309;"><i class="fa-solid fa-percent"></i></div>
+            <div>
+              <div class="stat-value" style="font-size:22px;" id="feeProgress">—</div>
+              <div class="stat-label">Fee Collection</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 anim-fade-up d4">
+          <div class="card card-soft p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="section-title">My Attendance History</h5>
+              <span class="badge bg-soft-info" style="font-size:12px;">Last 7 days</span>
+            </div>
+            <div class="chart-box" style="height:190px;"><canvas id="attLine"></canvas></div>
+          </div>
+        </div>
+
+        <div class="col-md-6 anim-fade-up">
+          <div class="card card-soft p-3 h-100">
+            <h5 class="section-title mb-3">Course Information</h5>
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Course</span><b id="ciCourse">—</b></div>
+              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Timing</span><b id="ciTiming">—</b></div>
+              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Teacher</span><b id="ciTeacher">—</b></div>
+              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Duration</span><b id="ciDuration">—</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 anim-fade-up d2">
+          <div class="card card-soft p-3 h-100">
+            <h5 class="section-title mb-3">Payment History</h5>
+            <div class="timeline" id="payList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fee detail card -->
+  <div class="card card-soft p-4 mt-3 anim-fade-up d2">
+    <h5 class="section-title mb-3"><i class="fa-solid fa-money-bill-wave me-2 text-success"></i>Fee Status — <span id="feeM2">—</span></h5>
+    <div class="row g-3 text-center">
+      <div class="col-4"><div class="rounded-3 p-3" style="background:#f8fafc;"><div class="muted" style="font-size:11.5px;">Monthly Fee</div><b class="fs-5" id="fMonthly">—</b></div></div>
+      <div class="col-4"><div class="rounded-3 p-3 bg-soft-success"><div class="muted" style="font-size:11.5px;">Paid</div><b class="fs-5 text-success" id="fPaid">—</b></div></div>
+      <div class="col-4"><div class="rounded-3 p-3" id="fRemainingBox" style="background:var(--success-light);"><div class="muted" style="font-size:11.5px;">Remaining</div><b class="fs-5" id="fRemaining">—</b></div></div>
+    </div>
+    <div class="mt-3">
+      <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:12.5px;">Paid collection progress</span><b id="fPercent">—</b></div>
+      <div class="progress-soft"><div class="progress-bar" id="fBar" style="width:0%;"></div></div>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <p class="muted" style="font-size:12px;"><i class="fa-solid fa-circle-info me-1"></i>Demo template — student ka data baad mein <b>Laravel + MySQL</b> database se aayega. Har student ke liye alag login hoga.</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="assets/js/students.js"></script>
+<script>
+  let currentStudent = null;
+
+  function logout() {
+    clearLoggedStudent();
+    window.location.href = 'index.html';
+  }
+
+  function printQR() {
+    window.print();
+  }
+
+  /* ---------- RENDER ---------- */
+  function render(s) {
+    currentStudent = s;
+    document.title = s.name + ' — Student Portal';
+    const avatars = ['navAvatar','heroAvatar','leftAvatar'];
+    avatars.forEach(id => document.getElementById(id).src = s.avatar);
+    document.getElementById('navName').textContent = s.name;
+    document.getElementById('navId').textContent = s.id;
+    document.getElementById('heroName').textContent = s.name;
+    document.getElementById('heroSub').textContent = s.course + ' • ' + s.batch;
+    document.getElementById('heroId').textContent = s.id;
+    document.getElementById('leftName').textContent = s.name;
+    document.getElementById('leftId').textContent = s.id;
+    document.getElementById('leftCourse').textContent = s.course + ' • ' + s.batch;
+
+    // QR
+    document.getElementById('leftQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + s.id;
+
+    // Profile
+    document.getElementById('dFather').textContent = s.fatherName;
+    document.getElementById('dPhone').textContent = s.phone;
+    document.getElementById('dEmail').textContent = s.email;
+    document.getElementById('dAddress').textContent = s.address;
+    document.getElementById('dAdmission').textContent = s.admission;
+    document.getElementById('dBatch').textContent = s.batch;
+
+    // Attendance
+    const a = s.attendance;
+    document.getElementById('pillAttendance').textContent = a.percent + '%';
+    document.getElementById('attPercent').textContent = a.percent + '%';
+    document.getElementById('attPresent').textContent = a.present;
+    document.getElementById('attTotal').textContent = a.total;
+
+    // Fee
+    const f = s.fee;
+    document.getElementById('pillFee').textContent = f.status;
+    document.getElementById('pillFee').style.color = '';
+    document.getElementById('feeStatus').textContent = f.status;
+    document.getElementById('feeStatus').className = 'stat-value fw-bold fs-6';
+    document.getElementById('feeStatus').style.color =
+      f.status === 'Paid' ? '#047857' : f.status === 'Pending' ? '#b45309' : '#be123c';
+    document.getElementById('feeMonth').textContent = f.month;
+
+    // Fee progress
+    const pct = f.monthly > 0 ? Math.round((f.paid / f.monthly) * 100) : 0;
+    document.getElementById('feeProgress').textContent = pct + '%';
+    document.getElementById('fMonthly').textContent = 'Rs. ' + f.monthly.toLocaleString();
+    document.getElementById('fPaid').textContent = 'Rs. ' + f.paid.toLocaleString();
+    document.getElementById('fRemaining').textContent = 'Rs. ' + f.remaining.toLocaleString();
+    document.getElementById('fPercent').textContent = pct + '% paid';
+    document.getElementById('fBar').style.width = pct + '%';
+    document.getElementById('fBar').style.background =
+      f.status === 'Paid' ? 'var(--gradient-success)' : pct > 0 ? 'var(--gradient-warning)' : 'var(--gradient-danger)';
+    const rbox = document.getElementById('fRemainingBox');
+    rbox.style.background = f.status === 'Paid' ? 'var(--success-light)' : 'var(--warning-light)';
+    document.getElementById('fRemaining').style.color = f.status === 'Paid' ? '#047857' : '#b45309';
+    document.getElementById('feeM2').textContent = f.month;
+
+    // Course info
+    const ci = s.courseInfo;
+    document.getElementById('ciCourse').textContent = s.course;
+    document.getElementById('ciTiming').textContent = ci.timing;
+    document.getElementById('ciTeacher').textContent = ci.teacher;
+    document.getElementById('ciDuration').textContent = ci.duration;
+    document.getElementById('statCourse').textContent = s.course;
+
+    // Payments
+    const pay = document.getElementById('payList');
+    pay.innerHTML = '';
+    s.payments.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'timeline-item success';
+      div.innerHTML = '<b style="font-size:13.5px;">' + p.month + ' — ' + p.amount.toLocaleString() + '</b>' +
+        '<div class="muted" style="font-size:12.5px;">Rs. ' + p.amount.toLocaleString() + ' • ' + p.date + ' • ' + p.method + '</div>';
+      pay.appendChild(div);
+    });
+
+    // Chart
+    renderLine(a.week);
+  }
+
+  function renderLine(week) {
+    const ctx = document.getElementById('attLine');
+    if (!ctx) return;
+    if (window._stuChart) window._stuChart.destroy();
+    window._stuChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Attendance',
+          data: week,
+          borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,.12)',
+          fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#6366f1', borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: 'rgba(148,163,184,.15)' }, border: { display: false }, min: 0, max: 1.2,
+               ticks: { stepSize: 1, callback: v => v === 1 ? 'Present' : v === 0 ? 'Absent' : '' } }
+        }
+      }
+    });
+  }
+
+  /* ---------- INIT ---------- */
+  (function init() {
+    const student = getLoggedStudent();
+    if (!student) {
+      window.location.href = 'index.html';
+      return;
+    }
+    render(student);
+  })();
+</script>
+</body>
+</html>
