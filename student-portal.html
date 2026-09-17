@@ -129,8 +129,8 @@
           <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3 h-100">
             <div class="stat-icon bg-grad-info" style="width:48px;height:48px;font-size:18px;"><i class="fa-solid fa-book-open"></i></div>
             <div>
-              <div class="stat-value" style="font-size:18px;" id="statCourse">—</div>
-              <div class="stat-label">Course</div>
+<div class="stat-value" style="font-size:18px;" id="statCourse">—</div>
+  <div class="stat-label">Class</div>
             </div>
           </div>
         </div>
@@ -156,11 +156,10 @@
 
         <div class="col-md-6 anim-fade-up">
           <div class="card card-soft p-3 h-100">
-            <h5 class="section-title mb-3">Course Information</h5>
+<h5 class="section-title mb-3">Class Information</h5>
             <div class="d-flex flex-column gap-2">
-              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Course</span><b id="ciCourse">—</b></div>
-              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Timing</span><b id="ciTiming">—</b></div>
-              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Teacher</span><b id="ciTeacher">—</b></div>
+              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Class</span><b id="ciCourse">—</b></div>
+              <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Class Teacher</span><b id="ciTeacher">—</b></div>
               <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Duration</span><b id="ciDuration">—</b></div>
             </div>
           </div>
@@ -219,11 +218,11 @@
     document.getElementById('navName').textContent = s.name;
     document.getElementById('navId').textContent = s.id;
     document.getElementById('heroName').textContent = s.name;
-    document.getElementById('heroSub').textContent = s.course + ' • ' + s.batch;
+    document.getElementById('heroSub').textContent = clsLabel(s) + ' • ' + s.batch;
     document.getElementById('heroId').textContent = s.id;
     document.getElementById('leftName').textContent = s.name;
     document.getElementById('leftId').textContent = s.id;
-    document.getElementById('leftCourse').textContent = s.course + ' • ' + s.batch;
+    document.getElementById('leftCourse').textContent = clsLabel(s) + ' • ' + s.batch;
 
     // QR
     document.getElementById('leftQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + s.id;
@@ -268,13 +267,13 @@
     document.getElementById('fRemaining').style.color = f.status === 'Paid' ? '#047857' : '#b45309';
     document.getElementById('feeM2').textContent = f.month;
 
-    // Course info
-    const ci = s.courseInfo;
-    document.getElementById('ciCourse').textContent = s.course;
+    // Course / Class info
+    const ci = s.classInfo;
+    document.getElementById('ciCourse').textContent = clsLabel(s);
     document.getElementById('ciTiming').textContent = ci.timing;
-    document.getElementById('ciTeacher').textContent = ci.teacher;
+    document.getElementById('ciTeacher').textContent = ci.classTeacher;
     document.getElementById('ciDuration').textContent = ci.duration;
-    document.getElementById('statCourse').textContent = s.course;
+    document.getElementById('statCourse').textContent = clsLabel(s);
 
     // Payments
     const pay = document.getElementById('payList');

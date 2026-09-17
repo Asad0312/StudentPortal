@@ -15,10 +15,10 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <div class="side-head">
-      <div class="brand-logo"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div class="brand-logo"><i class="fa-solid fa-school"></i></div>
       <div>
         <div class="brand-name">StudentHub</div>
-        <div class="brand-sub">Management System</div>
+        <div class="brand-sub">School Management</div>
       </div>
     </div>
 
@@ -54,12 +54,13 @@
       <button class="icon-btn menu-toggle" onclick="toggleSidebar(true)"><i class="fa-solid fa-bars"></i></button>
       <div class="page-title">
         <h2 id="pageTitle">Dashboard</h2>
-        <small id="pageSub">Institute overview — Wednesday, 16 September 2026</small>
+        <small id="pageSub">School overview — Wednesday, 16 September 2026</small>
       </div>
       <div class="topbar-actions">
         <div class="search-pill">
           <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
-          <input type="text" placeholder="Search student, ID, course..." />
+          <input id="globalSearch" type="text" placeholder="Student ID search — e.g. STU-1003" onkeydown="if(event.key==='Enter')doGlobalSearch()" />
+          <button style="border:0;background:none;color:var(--primary-dark);cursor:pointer;" title="Search" onclick="doGlobalSearch()"><i class="fa-solid fa-arrow-right"></i></button>
         </div>
         <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
         <button class="icon-btn" title="Settings"><i class="fa-solid fa-gear"></i></button>
@@ -67,7 +68,7 @@
           <img class="avatar" src="https://api.dicebear.com/8.x/initials/svg?seed=Admin" alt="admin" />
           <div class="d-none d-md-block">
             <b style="font-size:13.5px;">Admin</b><br />
-            <span class="muted" style="font-size:11.5px;">Super Admin</span>
+            <span class="muted" style="font-size:11.5px;">Headmaster</span>
           </div>
         </div>
       </div>
@@ -155,20 +156,20 @@
             <div class="card card-soft p-3">
               <div class="d-flex justify-content-between align-items-center px-2 pt-2 mb-2">
                 <h5 class="section-title">Recently Added Students</h5>
-                <a href="#" class="text-decoration-none" data-jump="students" style="font-size:13px;color:var(--primary-dark);" onclick="switchView('students');return false;">View all <i class="fa-solid fa-arrow-right fa-xs"></i></a>
+                <a href="#" class="text-decoration-none" style="font-size:13px;color:var(--primary-dark);" onclick="switchView('students');return false;">View all <i class="fa-solid fa-arrow-right fa-xs"></i></a>
               </div>
               <div class="table-responsive">
                 <table class="table align-middle mb-0">
                   <thead>
                     <tr>
-                      <th>Student</th><th>Student ID</th><th>Course</th><th>Status</th><th></th>
+                      <th>Student</th><th>Student ID</th><th>Class</th><th>Status</th><th></th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/> <div><b>Asad Javed</b><span>asadasad.javed@gmail.com</span></div></div></td><td class="fw-600">STU-1001</td><td>Web Development</td><td><span class="badge-soft bg-soft-success">Active</span></td><td><button class="mini-btn btn-icon-accent" data-jump="profile"><i class="fa-solid fa-eye"></i></button></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/> <div><b>Ali Ahmed</b><span>ali.ahmed@gmail.com</span></div></div></td><td class="fw-600">STU-1002</td><td>Graphic Design</td><td><span class="badge-soft bg-soft-success">Active</span></td><td><button class="mini-btn btn-icon-accent" data-jump="profile"><i class="fa-solid fa-eye"></i></button></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/> <div><b>Hamza Khan</b><span>hamza.khan@gmail.com</span></div></div></td><td class="fw-600">STU-1003</td><td>Digital Marketing</td><td><span class="badge-soft bg-soft-warning">Inactive</span></td><td><button class="mini-btn btn-icon-accent" data-jump="profile"><i class="fa-solid fa-eye"></i></button></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/> <div><b>Bilal Ahmed</b><span>bilal.ahmed@gmail.com</span></div></div></td><td class="fw-600">STU-1004</td><td>Web Development</td><td><span class="badge-soft bg-soft-success">Active</span></td><td><button class="mini-btn btn-icon-accent" data-jump="profile"><i class="fa-solid fa-eye"></i></button></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/> <div><b>Asad Javed</b><span>Class 6-A</span></div></div></td><td class="fw-600">STU-1001</td><td>Class 6-A</td><td><span class="badge-soft bg-soft-success">Active</span></td><td><button class="mini-btn btn-icon-accent view-student" data-id="STU-1001"><i class="fa-solid fa-eye"></i></button></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/> <div><b>Ali Ahmed</b><span>Class 5-B</span></div></div></td><td class="fw-600">STU-1002</td><td>Class 5-B</td><td><span class="badge-soft bg-soft-success">Active</span></td><td><button class="mini-btn btn-icon-accent view-student" data-id="STU-1002"><i class="fa-solid fa-eye"></i></button></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/> <div><b>Hamza Khan</b><span>Class 8-A</span></div></div></td><td class="fw-600">STU-1003</td><td>Class 8-A</td><td><span class="badge-soft bg-soft-warning">Inactive</span></td><td><button class="mini-btn btn-icon-accent view-student" data-id="STU-1003"><i class="fa-solid fa-eye"></i></button></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/> <div><b>Bilal Ahmed</b><span>Class 6-A</span></div></div></td><td class="fw-600">STU-1004</td><td>Class 6-A</td><td><span class="badge-soft bg-soft-success">Active</span></td><td><button class="mini-btn btn-icon-accent view-student" data-id="STU-1004"><i class="fa-solid fa-eye"></i></button></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -183,15 +184,15 @@
               <div class="timeline px-2 pt-1">
                 <div class="timeline-item success">
                   <b style="font-size:13.5px;">QR Attendance Marked</b>
-                  <div class="muted" style="font-size:12.5px;">Asad Javed (STU-1001) — 08:05 PM</div>
+                  <div class="muted" style="font-size:12.5px;">Asad Javed (STU-1001) — 08:05 AM</div>
                 </div>
                 <div class="timeline-item success">
                   <b style="font-size:13.5px;">Fee Received</b>
-                  <div class="muted" style="font-size:12.5px;">Rs. 5,000 from Bilal Ahmed — Sept</div>
+                  <div class="muted" style="font-size:12.5px;">Rs. 5,000 from Bilal Ahmed — September</div>
                 </div>
                 <div class="timeline-item">
                   <b style="font-size:13.5px;">New Student Added</b>
-                  <div class="muted" style="font-size:12.5px;">Fatima Noor joined Web Development</div>
+                  <div class="muted" style="font-size:12.5px;">Fatima Noor joined Class 1-C</div>
                 </div>
                 <div class="timeline-item">
                   <b style="font-size:13.5px;">QR Code Generated</b>
@@ -210,92 +211,27 @@
       <!-- ================= STUDENTS VIEW ================= -->
       <section class="view" id="view-students">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 anim-fade-up">
-          <div class="d-flex flex-wrap gap-2">
-            <button class="filter-chip active">All (250)</button>
-            <button class="filter-chip">Active</button>
-            <button class="filter-chip">Inactive</button>
-            <button class="filter-chip">Fee Pending</button>
+          <div class="d-flex align-items-center gap-2">
+            <div class="search-pill" style="min-width:230px;">
+              <i class="fa-solid fa-id-card" style="color:var(--text-muted);"></i>
+              <input id="stuSearch" type="text" placeholder="Naam / ID / Class filter..." oninput="filterStudents()" />
+            </div>
           </div>
-          <button class="btn-grad" data-bs-toggle="modal" data-bs-target="#addStudentModal"><i class="fa-solid fa-plus me-1"></i> Add Student</button>
+          <button class="btn-grad" data-bs-toggle="modal" data-bs-target="#addStudentModal" onclick="updateNextId()"><i class="fa-solid fa-plus me-1"></i> Add Student</button>
         </div>
 
         <div class="card card-soft p-3 anim-fade-up d2">
           <div class="table-responsive">
-            <table class="table align-middle mb-0">
+            <table class="table align-middle mb-0" id="stuTable">
               <thead>
-                <tr><th>Student</th><th>Student ID</th><th>Course</th><th>Phone</th><th>Admission</th><th>Attendance</th><th>Status</th><th>Actions</th></tr>
+                <tr><th>Student</th><th>Student ID</th><th>Class</th><th>Phone</th><th>Admission</th><th>Attendance</th><th>Status</th><th>Actions</th></tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><div><b>Asad Javed</b><span>STU-1001</span></div></div></td>
-                  <td class="fw-600">STU-1001</td>
-                  <td>Web Development</td><td>0301-2345678</td><td>16 Sep 2026</td>
-                  <td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:70px;"><div class="progress-bar bg-grad-success" style="width:87%;"></div></div><span class="fw-600" style="font-size:12.5px;">87%</span></div></td>
-                  <td><span class="badge-soft bg-soft-success">Active</span></td>
-                  <td>
-                    <button class="mini-btn btn-icon-accent" data-jump="profile" title="View"><i class="fa-solid fa-eye"></i></button>
-                    <button class="mini-btn btn-icon-success" title="QR" onclick="showQR('STU-1001','Asad Javed')"><i class="fa-solid fa-qrcode"></i></button>
-                    <button class="mini-btn btn-icon-warning" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                    <button class="mini-btn btn-icon-danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><div><b>Ali Ahmed</b><span>STU-1002</span></div></div></td>
-                  <td class="fw-600">STU-1002</td>
-                  <td>Graphic Design</td><td>0322-3344556</td><td>02 Sep 2026</td>
-                  <td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:70px;"><div class="progress-bar bg-grad-success" style="width:92%;"></div></div><span class="fw-600" style="font-size:12.5px;">92%</span></div></td>
-                  <td><span class="badge-soft bg-soft-success">Active</span></td>
-                  <td>
-                    <button class="mini-btn btn-icon-accent" data-jump="profile"><i class="fa-solid fa-eye"></i></button>
-                    <button class="mini-btn btn-icon-success" onclick="showQR('STU-1002','Ali Ahmed')"><i class="fa-solid fa-qrcode"></i></button>
-                    <button class="mini-btn btn-icon-warning"><i class="fa-solid fa-pen"></i></button>
-                    <button class="mini-btn btn-icon-danger"><i class="fa-solid fa-trash"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><div><b>Bilal Ahmed</b><span>STU-1004</span></div></div></td>
-                  <td class="fw-600">STU-1004</td>
-                  <td>Web Development</td><td>0300-9988776</td><td>28 Aug 2026</td>
-                  <td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:70px;"><div class="progress-bar bg-grad-success" style="width:78%;"></div></div><span class="fw-600" style="font-size:12.5px;">78%</span></div></td>
-                  <td><span class="badge-soft bg-soft-success">Active</span></td>
-                  <td>
-                    <button class="mini-btn btn-icon-accent" data-jump="profile"><i class="fa-solid fa-eye"></i></button>
-                    <button class="mini-btn btn-icon-success" onclick="showQR('STU-1004','Bilal Ahmed')"><i class="fa-solid fa-qrcode"></i></button>
-                    <button class="mini-btn btn-icon-warning"><i class="fa-solid fa-pen"></i></button>
-                    <button class="mini-btn btn-icon-danger"><i class="fa-solid fa-trash"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><div><b>Fatima Noor</b><span>STU-1010</span></div></div></td>
-                  <td class="fw-600">STU-1010</td>
-                  <td>Web Development</td><td>0345-6677889</td><td>14 Sep 2026</td>
-                  <td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:70px;"><div class="progress-bar bg-grad-info" style="width:25%;"></div></div><span class="fw-600" style="font-size:12.5px;">25%</span></div></td>
-                  <td><span class="badge-soft bg-soft-warning">Fee Pending</span></td>
-                  <td>
-                    <button class="mini-btn btn-icon-accent" data-jump="profile"><i class="fa-solid fa-eye"></i></button>
-                    <button class="mini-btn btn-icon-success" onclick="showQR('STU-1010','Fatima Noor')"><i class="fa-solid fa-qrcode"></i></button>
-                    <button class="mini-btn btn-icon-warning"><i class="fa-solid fa-pen"></i></button>
-                    <button class="mini-btn btn-icon-danger"><i class="fa-solid fa-trash"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/><div><b>Hamza Khan</b><span>STU-1003</span></div></div></td>
-                  <td class="fw-600">STU-1003</td>
-                  <td>Digital Marketing</td><td>0333-5566778</td><td>20 Aug 2026</td>
-                  <td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:70px;"><div class="progress-bar bg-grad-warning" style="width:54%;"></div></div><span class="fw-600" style="font-size:12.5px;">54%</span></div></td>
-                  <td><span class="badge-soft bg-soft-danger">Inactive</span></td>
-                  <td>
-                    <button class="mini-btn btn-icon-accent" data-jump="profile"><i class="fa-solid fa-eye"></i></button>
-                    <button class="mini-btn btn-icon-success" onclick="showQR('STU-1003','Hamza Khan')"><i class="fa-solid fa-qrcode"></i></button>
-                    <button class="mini-btn btn-icon-warning"><i class="fa-solid fa-pen"></i></button>
-                    <button class="mini-btn btn-icon-danger"><i class="fa-solid fa-trash"></i></button>
-                  </td>
-                </tr>
+              <tbody id="stuTableBody">
               </tbody>
             </table>
           </div>
           <div class="d-flex justify-content-between align-items-center mt-3 px-1">
-            <span class="muted" style="font-size:13px;">Showing 1–5 of 250</span>
+            <span class="muted" style="font-size:13px;"><span id="stuCount">0</span> students shown</span>
             <nav>
               <ul class="pagination pagination-sm mb-0">
                 <li class="page-item disabled"><a class="page-link" href="#">Prev</a></li>
@@ -341,23 +277,23 @@
               <h5 class="section-title mb-3"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Today's Scan Log</h5>
               <div class="scan-log">
                 <div class="d-flex justify-content-between align-items-center border-bottom py-2" style="border-color:#f1f5f9!important;">
-                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><div><b style="font-size:13.5px;">Asad Javed</b><span>STU-1001</span></div></div>
-                  <span class="badge-soft bg-soft-success">08:05 PM</span>
+                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><div><b style="font-size:13.5px;">Asad Javed</b><span>STU-1001 • Class 6-A</span></div></div>
+                  <span class="badge-soft bg-soft-success">08:05 AM</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center border-bottom py-2" style="border-color:#f1f5f9!important;">
-                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><div><b style="font-size:13.5px;">Ali Ahmed</b><span>STU-1002</span></div></div>
-                  <span class="badge-soft bg-soft-success">07:35 PM</span>
+                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><div><b style="font-size:13.5px;">Ali Ahmed</b><span>STU-1002 • Class 5-B</span></div></div>
+                  <span class="badge-soft bg-soft-success">07:45 AM</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center border-bottom py-2" style="border-color:#f1f5f9!important;">
-                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><div><b style="font-size:13.5px;">Bilal Ahmed</b><span>STU-1004</span></div></div>
-                  <span class="badge-soft bg-soft-success">07:20 PM</span>
+                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><div><b style="font-size:13.5px;">Bilal Ahmed</b><span>STU-1004 • Class 6-A</span></div></div>
+                  <span class="badge-soft bg-soft-success">07:30 AM</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center py-2">
-                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><div><b style="font-size:13.5px;">Fatima Noor</b><span>STU-1010</span></div></div>
-                  <span class="badge-soft bg-soft-info">07:02 PM</span>
+                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><div><b style="font-size:13.5px;">Fatima Noor</b><span>STU-1010 • Class 1-C</span></div></div>
+                  <span class="badge-soft bg-soft-info">07:15 AM</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center py-2">
-                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/><div><b style="font-size:13.5px;">Hamza Khan</b><span>STU-1003</span></div></div>
+                  <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/><div><b style="font-size:13.5px;">Hamza Khan</b><span>STU-1003 • Class 8-A</span></div></div>
                   <span class="badge-soft bg-soft-danger">Not Marked</span>
                 </div>
               </div>
@@ -372,14 +308,14 @@
           <button class="btn-ghost"><i class="fa-regular fa-calendar me-1"></i> 16 Sep 2026</button>
           <button class="filter-chip active">Daily</button>
           <button class="filter-chip">Monthly</button>
-          <button class="filter-chip">All Students</button>
+          <button class="filter-chip">Class Wise</button>
         </div>
 
         <div class="row g-3 mb-4">
           <div class="col-lg-3 col-md-6 anim-fade-up">
             <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
               <div class="stat-icon bg-soft-primary" style="color:var(--primary-dark);"><i class="fa-solid fa-book-open"></i></div>
-              <div><div class="stat-value" style="font-size:22px;">24</div><div class="stat-label">Total Classes</div></div>
+              <div><div class="stat-value" style="font-size:22px;">24</div><div class="stat-label">Total School Days</div></div>
             </div>
           </div>
           <div class="col-lg-3 col-md-6 anim-fade-up d2">
@@ -397,7 +333,7 @@
           <div class="col-lg-3 col-md-6 anim-fade-up d4">
             <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
               <div class="stat-icon bg-grad-success"><i class="fa-solid fa-chart-simple"></i></div>
-              <div><div class="stat-value" style="font-size:22px;">87.5%</div><div class="stat-label">Attendance</div></div>
+              <div><div class="stat-value" style="font-size:22px;">87.5%</div><div class="stat-label">Attendance Rate</div></div>
             </div>
           </div>
         </div>
@@ -407,13 +343,13 @@
             <div class="card card-soft p-3 mb-3">
               <div class="table-responsive">
                 <table class="table align-middle mb-0">
-                  <thead><tr><th>Student</th><th>Course</th><th>Check-in</th><th>Status</th></tr></thead>
+                  <thead><tr><th>Student</th><th>Class</th><th>Check-in</th><th>Status</th></tr></thead>
                   <tbody>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><b>Asad Javed</b></div></td><td>Web Development</td><td>08:05 PM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><b>Ali Ahmed</b></div></td><td>Graphic Design</td><td>07:35 PM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><b>Bilal Ahmed</b></div></td><td>Web Development</td><td>07:20 PM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><b>Fatima Noor</b></div></td><td>Web Development</td><td>07:02 PM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/><b>Hamza Khan</b></div></td><td>Digital Marketing</td><td>—</td><td><span class="badge-soft bg-soft-danger"><i class="fa-solid fa-xmark me-1"></i>Absent</span></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><b>Asad Javed</b></div></td><td>Class 6-A</td><td>08:05 AM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><b>Ali Ahmed</b></div></td><td>Class 5-B</td><td>07:45 AM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><b>Bilal Ahmed</b></div></td><td>Class 6-A</td><td>07:30 AM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><b>Fatima Noor</b></div></td><td>Class 1-C</td><td>07:15 AM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
+                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/><b>Hamza Khan</b></div></td><td>Class 8-A</td><td>—</td><td><span class="badge-soft bg-soft-danger"><i class="fa-solid fa-xmark me-1"></i>Absent</span></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -422,19 +358,19 @@
 
           <div class="col-lg-5 anim-fade-up d3">
             <div class="card card-soft p-3">
-              <h5 class="section-title mb-3">Monthly Report — Asad Javed (STU-1001)</h5>
+              <h5 class="section-title mb-3">Monthly Report — <span id="attStuName">Asad Javed</span></h5>
               <div class="d-flex flex-column gap-3">
                 <div>
-                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Attendance Record</span><b class="fs-6">87.5%</b></div>
-                  <div class="progress-soft"><div class="progress-bar bg-grad-success" style="width:87.5%;"></div></div>
+                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Attendance Record</span><b class="fs-6" id="attRecPct">87.5%</b></div>
+                  <div class="progress-soft"><div class="progress-bar bg-grad-success" id="attRecBar" style="width:87.5%;"></div></div>
                 </div>
                 <div>
-                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Attendance (Sept)</span><b class="fs-6">92%</b></div>
-                  <div class="progress-soft"><div class="progress-bar bg-grad-primary" style="width:92%;"></div></div>
+                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Attendance (Sept)</span><b class="fs-6" id="attSepPct">92%</b></div>
+                  <div class="progress-soft"><div class="progress-bar bg-grad-primary" id="attSepBar" style="width:92%;"></div></div>
                 </div>
                 <div>
-                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Overall (2026)</span><b class="fs-6">87.5%</b></div>
-                  <div class="progress-soft"><div class="progress-bar bg-grad-info" style="width:87.5%;"></div></div>
+                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Overall (2026)</span><b class="fs-6" id="attOvrPct">87.5%</b></div>
+                  <div class="progress-soft"><div class="progress-bar bg-grad-info" id="attOvrBar" style="width:87.5%;"></div></div>
                 </div>
                 <div class="d-flex gap-2 mt-2 flex-wrap">
                   <button class="btn-ghost flex-grow-1"><i class="fa-solid fa-print me-1"></i> Print Report</button>
@@ -463,35 +399,35 @@
               </div>
               <div class="table-responsive">
                 <table class="table align-middle mb-0">
-                  <thead><tr><th>Student</th><th>Monthly Fee</th><th>Paid</th><th>Remaining</th><th>Status</th><th></th></tr></thead>
+                  <thead><tr><th>Student</th><th>Class</th><th>Monthly Fee</th><th>Paid</th><th>Remaining</th><th>Status</th><th></th></tr></thead>
                   <tbody>
                     <tr>
                       <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><b>Asad Javed</b></div></td>
-                      <td class="fw-600">Rs. 5,000</td><td class="text-success fw-600">Rs. 5,000</td><td class="fw-600">Rs. 0</td>
+                      <td>Class 6-A</td><td class="fw-600">Rs. 2,500</td><td class="text-success fw-600">Rs. 2,500</td><td class="fw-600">Rs. 0</td>
                       <td><span class="badge-soft bg-soft-success">Paid</span></td>
                       <td><button class="mini-btn btn-icon-accent"><i class="fa-solid fa-receipt"></i></button></td>
                     </tr>
                     <tr>
                       <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><b>Ali Ahmed</b></div></td>
-                      <td class="fw-600">Rs. 6,000</td><td class="text-success fw-600">Rs. 6,000</td><td class="fw-600">Rs. 0</td>
+                      <td>Class 5-B</td><td class="fw-600">Rs. 2,500</td><td class="text-success fw-600">Rs. 2,500</td><td class="fw-600">Rs. 0</td>
                       <td><span class="badge-soft bg-soft-success">Paid</span></td>
                       <td><button class="mini-btn btn-icon-accent"><i class="fa-solid fa-receipt"></i></button></td>
                     </tr>
                     <tr>
                       <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><b>Bilal Ahmed</b></div></td>
-                      <td class="fw-600">Rs. 5,000</td><td class="text-success fw-600">Rs. 5,000</td><td class="fw-600">Rs. 0</td>
+                      <td>Class 6-A</td><td class="fw-600">Rs. 2,500</td><td class="text-success fw-600">Rs. 2,500</td><td class="fw-600">Rs. 0</td>
                       <td><span class="badge-soft bg-soft-success">Paid</span></td>
                       <td><button class="mini-btn btn-icon-accent"><i class="fa-solid fa-receipt"></i></button></td>
                     </tr>
                     <tr>
                       <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><b>Fatima Noor</b></div></td>
-                      <td class="fw-600">Rs. 5,000</td><td class="text-success fw-600">Rs. 3,000</td><td class="fw-600 text-danger">Rs. 2,000</td>
+                      <td>Class 1-C</td><td class="fw-600">Rs. 2,000</td><td class="text-success fw-600">Rs. 1,000</td><td class="fw-600 text-danger">Rs. 1,000</td>
                       <td><span class="badge-soft bg-soft-warning">Pending</span></td>
                       <td><button class="mini-btn btn-icon-success" title="Add Payment"><i class="fa-solid fa-money-bill-wave"></i></button></td>
                     </tr>
                     <tr>
                       <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/><b>Hamza Khan</b></div></td>
-                      <td class="fw-600">Rs. 4,500</td><td class="text-success fw-600">Rs. 0</td><td class="fw-600 text-danger">Rs. 4,500</td>
+                      <td>Class 8-A</td><td class="fw-600">Rs. 3,000</td><td class="text-success fw-600">Rs. 0</td><td class="fw-600 text-danger">Rs. 3,000</td>
                       <td><span class="badge-soft bg-soft-danger">Unpaid</span></td>
                       <td><button class="mini-btn btn-icon-success" title="Add Payment"><i class="fa-solid fa-money-bill-wave"></i></button></td>
                     </tr>
@@ -524,15 +460,15 @@
               <div class="d-flex flex-column gap-2">
                 <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="background:#f8fafc;">
                   <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><b style="font-size:13px;">Bilal Ahmed</b></div>
-                  <span class="badge-soft bg-soft-success">Rs. 5,000</span>
+                  <span class="badge-soft bg-soft-success">Rs. 2,500</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="background:#f8fafc;">
                   <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><b style="font-size:13px;">Fatima Noor</b></div>
-                  <span class="badge-soft bg-soft-success">Rs. 3,000</span>
+                  <span class="badge-soft bg-soft-success">Rs. 1,000</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="background:#f8fafc;">
                   <div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><b style="font-size:13px;">Ali Ahmed</b></div>
-                  <span class="badge-soft bg-soft-success">Rs. 6,000</span>
+                  <span class="badge-soft bg-soft-success">Rs. 2,500</span>
                 </div>
               </div>
             </div>
@@ -540,8 +476,14 @@
         </div>
       </section>
 
-      <!-- ================= PROFILE / QR VIEW ================= -->
+      <!-- ================= PROFILE VIEW (dynamic by ID) ================= -->
       <section class="view" id="view-profile">
+        <div class="p-2 mb-3 anim-fade-up rounded-3" style="background:#eef0ff;">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--primary-dark);"></i>
+            <span style="font-size:13px;color:var(--primary-dark);">Top search bar mein koi <b>Student ID</b> (e.g. STU-1004) dalo aur Enter dabao — uska data yahan khulega.</span>
+          </div>
+        </div>
         <div class="row g-3 justify-content-center">
           <div class="col-lg-5 anim-fade-up">
             <div class="text-center mb-3">
@@ -549,24 +491,24 @@
             </div>
             <div class="id-card mx-auto anim-fade-up d2">
               <div class="id-card-head">
-                <img class="avatar" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt="student" />
+                <img class="avatar" id="pAvatar" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt="student" />
                 <div>
-                  <b class="fs-6">Asad Javed</b><br />
-                  <span style="font-size:12px;opacity:.8;">Web Development</span>
+                  <b class="fs-6" id="pName">Asad Javed</b><br />
+                  <span style="font-size:12px;opacity:.8;" id="pClass">Class 6-A</span>
                 </div>
               </div>
               <div class="qr-holder">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=STU-1001" alt="QR Code" />
+                <img id="pQR" src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=STU-1001" alt="QR Code" />
               </div>
               <div class="qr-label">SCAN ME — UNIQUE STUDENT ID</div>
               <div class="id-card-foot">
-                <span><i class="fa-solid fa-id-badge me-1"></i>STU-1001</span>
-                <span><i class="fa-solid fa-calendar me-1"></i>Join: 16-Sep-2026</span>
+                <span><i class="fa-solid fa-id-badge me-1"></i><span id="pID">STU-1001</span></span>
+                <span><i class="fa-solid fa-calendar me-1"></i>Join: <span id="pJoin">16-Sep-2026</span></span>
               </div>
             </div>
             <div class="d-flex gap-2 justify-content-center mt-3">
-              <button class="btn-grad"><i class="fa-solid fa-download me-1"></i> Download ID Card</button>
-              <button class="btn-ghost"><i class="fa-solid fa-print me-1"></i> Print</button>
+              <button class="btn-grad" onclick="printQR()"><i class="fa-solid fa-download me-1"></i> Download ID Card</button>
+              <button class="btn-ghost" onclick="showQR(selStudent().id, selStudent().name)"><i class="fa-solid fa-qrcode me-1"></i> View QR</button>
             </div>
           </div>
 
@@ -575,53 +517,53 @@
               <div class="col-md-6">
                 <div class="card card-soft p-3">
                   <div class="muted" style="font-size:12px;"><i class="fa-solid fa-user me-1"></i> Full Name</div>
-                  <b>Asad Javed</b>
+                  <b id="pFullName">Asad Javed</b>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="card card-soft p-3">
                   <div class="muted" style="font-size:12px;"><i class="fa-solid fa-user-tie me-1"></i> Father Name</div>
-                  <b>Muhammad Javed</b>
+                  <b id="pFather">Muhammad Javed</b>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="card card-soft p-3">
                   <div class="muted" style="font-size:12px;"><i class="fa-solid fa-phone me-1"></i> Phone</div>
-                  <b>0301-2345678</b>
+                  <b id="pPhone">0301-2345678</b>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="card card-soft p-3">
                   <div class="muted" style="font-size:12px;"><i class="fa-solid fa-envelope me-1"></i> Email</div>
-                  <b style="font-size:13px;">asad.javed@gmail.com</b>
+                  <b id="pEmail" style="font-size:13px;">asad.javed@gmail.com</b>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="card card-soft p-3">
-                  <div class="muted" style="font-size:12px;"><i class="fa-solid fa-book me-1"></i> Course / Class</div>
-                  <b>Web Development</b>
+                  <div class="muted" style="font-size:12px;"><i class="fa-solid fa-school me-1"></i> Class / Section</div>
+                  <b id="pClsSec">Class 6-A</b>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="card card-soft p-3">
                   <div class="muted" style="font-size:12px;"><i class="fa-solid fa-calendar-day me-1"></i> Admission Date</div>
-                  <b>16 September 2026</b>
+                  <b id="pAdmission">16 September 2026</b>
                 </div>
               </div>
               <div class="col-12">
                 <div class="card card-soft p-3">
-                  <h6 class="fw-700 mb-1">Attendance Percentage</h6>
-                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:12.5px;">210 / 240 classes</span><b>87.5%</b></div>
-                  <div class="progress-soft"><div class="progress-bar bg-grad-success" style="width:87.5%;"></div></div>
+                  <h6 class="fw-700 mb-1"><i class="fa-solid fa-chart-line me-1 text-success"></i>Attendance Percentage</h6>
+                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:12.5px;" id="pAttDetail">210 / 240 classes</span><b id="pAttPct">87.5%</b></div>
+                  <div class="progress-soft"><div class="progress-bar bg-grad-success" id="pAttBar" style="width:87.5%;"></div></div>
                 </div>
               </div>
               <div class="col-12">
                 <div class="card card-soft p-3">
-                  <h6 class="fw-700 mb-1">Fee Status</h6>
+                  <h6 class="fw-700 mb-1"><i class="fa-solid fa-money-bill-wave me-1 text-warning"></i>Fee Status</h6>
                   <div class="row g-2 text-center mt-1">
-                    <div class="col-4"><div class="rounded-3 p-2" style="background:#f8fafc;"><div class="muted" style="font-size:11.5px;">Monthly Fee</div><b class="fs-6">Rs. 5,000</b></div></div>
-                    <div class="col-4"><div class="rounded-3 p-2 bg-soft-success"><div class="muted" style="font-size:11.5px;">Paid</div><b class="fs-6 text-success">Rs. 5,000</b></div></div>
-                    <div class="col-4"><div class="rounded-3 p-2 bg-soft-success"><div class="muted" style="font-size:11.5px;">Remaining</div><b class="fs-6 text-success">Rs. 0</b></div></div>
+                    <div class="col-4"><div class="rounded-3 p-2" style="background:#f8fafc;"><div class="muted" style="font-size:11.5px;">Monthly Fee</div><b class="fs-6" id="pFeeMonthly">Rs. 5,000</b></div></div>
+                    <div class="col-4"><div class="rounded-3 p-2 bg-soft-success"><div class="muted" style="font-size:11.5px;">Paid</div><b class="fs-6 text-success" id="pFeePaid">Rs. 5,000</b></div></div>
+                    <div class="col-4"><div class="rounded-3 p-2" id="pFeeBox"><div class="muted" style="font-size:11.5px;">Remaining</div><b class="fs-6" id="pFeeRemaining">Rs. 0</b></div></div>
                   </div>
                 </div>
               </div>
@@ -641,7 +583,7 @@
           </div>
           <div class="col-lg-4 anim-fade-up d2">
             <div class="card card-soft p-3 h-100">
-              <h5 class="section-title mb-3">Students by Course</h5>
+              <h5 class="section-title mb-3">Students by Class</h5>
               <div class="chart-box" style="height:230px;"><canvas id="repDoughnut"></canvas></div>
             </div>
           </div>
@@ -670,40 +612,40 @@
           </div>
           <div class="table-responsive">
             <table class="table align-middle mb-0">
-              <thead><tr><th>#</th><th>Student</th><th>Course</th><th>Present</th><th>Classes</th><th>Attendance</th></tr></thead>
+              <thead><tr><th>#</th><th>Student</th><th>Class</th><th>Present</th><th>School Days</th><th>Attendance</th></tr></thead>
               <tbody>
-                <tr><td class="fw-bold text-primary">1</td><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><b>Ali Ahmed</b></div></td><td>Graphic Design</td><td>22</td><td>24</td><td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:110px;"><div class="progress-bar bg-grad-success" style="width:92%;"></div></div><b style="font-size:12.5px;">92%</b></div></td></tr>
-                <tr><td class="fw-bold text-primary">2</td><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><b>Asad Javed</b></div></td><td>Web Development</td><td>21</td><td>24</td><td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:110px;"><div class="progress-bar bg-grad-success" style="width:87.5%;"></div></div><b style="font-size:12.5px;">87.5%</b></div></td></tr>
-                <tr><td class="fw-bold text-primary">3</td><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><b>Bilal Ahmed</b></div></td><td>Web Development</td><td>19</td><td>24</td><td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:110px;"><div class="progress-bar bg-grad-info" style="width:78%;"></div></div><b style="font-size:12.5px;">78%</b></div></td></tr>
+                <tr><td class="fw-bold text-primary">1</td><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><b>Ali Ahmed</b></div></td><td>Class 5-B</td><td>22</td><td>24</td><td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:110px;"><div class="progress-bar bg-grad-success" style="width:92%;"></div></div><b style="font-size:12.5px;">92%</b></div></td></tr>
+                <tr><td class="fw-bold text-primary">2</td><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><b>Asad Javed</b></div></td><td>Class 6-A</td><td>21</td><td>24</td><td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:110px;"><div class="progress-bar bg-grad-success" style="width:87.5%;"></div></div><b style="font-size:12.5px;">87.5%</b></div></td></tr>
+                <tr><td class="fw-bold text-primary">3</td><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><b>Bilal Ahmed</b></div></td><td>Class 6-A</td><td>19</td><td>24</td><td><div class="d-flex align-items-center gap-2"><div class="progress-soft flex-grow-1" style="width:110px;"><div class="progress-bar bg-grad-info" style="width:78%;"></div></div><b style="font-size:12.5px;">78%</b></div></td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <!-- ================= STUDENT PORTAL VIEW ================= -->
+      <!-- ================= STUDENT PORTAL VIEW (dynamic preview) ================= -->
       <section class="view" id="view-portal">
         <div class="news-ticker mb-3 anim-fade-up">
           <div class="ticker-track">
-            🎉 Welcome to Student Portal — QR Code scan karke daily attendance mark karein • Fee due hone se pehle pay karein • Example: Section visit - StudentHub
+            🎉 Student Portal — QR Code scan karke daily attendance mark karein &nbsp;•&nbsp; Fees pending ho to jald pay karein &nbsp;•&nbsp; Attendance 75% se kam hai to alert milegi &nbsp;•&nbsp; Demo
           </div>
         </div>
 
         <div class="row g-3">
           <div class="col-lg-4 anim-fade-up">
             <div class="card card-soft p-4 text-center">
-              <img class="avatar-lg mx-auto" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt="student" />
-              <h5 class="mt-3 mb-0 fw-bold">Asad Javed</h5>
-              <span class="badge bg-soft-primary mt-1">STU-1001</span>
-              <p class="muted mt-2 mb-3" style="font-size:13px;">Web Development • Batch 2026</p>
+              <img class="avatar-lg mx-auto" id="ptAvatar" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt="student" />
+              <h5 class="mt-3 mb-0 fw-bold" id="ptName">Asad Javed</h5>
+              <span class="badge bg-soft-primary mt-1" id="ptId">STU-1001</span>
+              <p class="muted mt-2 mb-3" style="font-size:13px;" id="ptCls">Class 6-A • Session 2026</p>
               <div class="card p-3" style="background:#f8fafc;">
                 <div class="muted" style="font-size:11.5px;">My QR Code — class mein scan kariye</div>
                 <div class="d-flex justify-content-center my-2">
                   <div style="width:130px;height:130px;background:#fff;border-radius:14px;display:grid;place-items:center;padding:8px;box-shadow:var(--shadow-sm);">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=STU-1001" style="width:100%;height:100%;" alt="QR" />
+                    <img id="ptQR" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=STU-1001" style="width:100%;height:100%;" alt="QR" />
                   </div>
                 </div>
-                <button class="btn-grad" style="padding:8px;font-size:12.5px;"><i class="fa-solid fa-arrow-down me-1"></i> Download ID Card</button>
+                <a href="student-portal.html" class="btn-grad" style="padding:8px;font-size:12.5px;text-decoration:none;"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Open Student Login</a>
               </div>
             </div>
           </div>
@@ -713,35 +655,35 @@
               <div class="col-sm-6 anim-fade-up d2">
                 <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
                   <div class="stat-icon bg-grad-success" style="width:48px;height:48px;font-size:18px;"><i class="fa-solid fa-chart-simple"></i></div>
-                  <div><div class="stat-value" style="font-size:22px;">87.5%</div><div class="stat-label">My Attendance</div></div>
+                  <div><div class="stat-value" style="font-size:22px;" id="ptAtt">87.5%</div><div class="stat-label">My Attendance</div></div>
                 </div>
               </div>
               <div class="col-sm-6 anim-fade-up d3">
                 <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
                   <div class="stat-icon" style="width:48px;height:48px;font-size:18px;background:var(--success-light);color:#047857;"><i class="fa-solid fa-circle-check"></i></div>
-                  <div><div class="stat-value" style="font-size:22px;">Paid</div><div class="stat-label">September Fee</div></div>
+                  <div><div class="stat-value" style="font-size:22px;" id="ptFee">Paid</div><div class="stat-label">September Fee</div></div>
                 </div>
               </div>
               <div class="col-sm-6 anim-fade-up d3">
                 <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
-                  <div class="stat-icon bg-grad-warning" style="width:48px;height:48px;font-size:18px;"><i class="fa-solid fa-book-open"></i></div>
-                  <div><div class="stat-value" style="font-size:22px;">Web Dev</div><div class="stat-label">Course / Class</div></div>
+                  <div class="stat-icon bg-grad-primary" style="width:48px;height:48px;font-size:18px;"><i class="fa-solid fa-school"></i></div>
+                  <div><div class="stat-value" style="font-size:22px;" id="ptCourse">Class 6-A</div><div class="stat-label">Class / Section</div></div>
                 </div>
               </div>
               <div class="col-sm-6 anim-fade-up d4">
                 <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
                   <div class="stat-icon bg-grad-info" style="width:48px;height:48px;font-size:18px;"><i class="fa-solid fa-money-check-dollar"></i></div>
-                  <div><div class="stat-value" style="font-size:22px;">Rs. 5,000</div><div class="stat-label">Fee Received</div></div>
+                  <div><div class="stat-value" style="font-size:22px;" id="ptFeeAmt">Rs. 5,000</div><div class="stat-label">Fee Received</div></div>
                 </div>
               </div>
 
               <div class="col-12 anim-fade-up d4">
                 <div class="card card-soft p-3 h-100">
                   <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="section-title">My Attendance History</h5>
+                    <h5 class="section-title">Attendance History</h5>
                     <span class="badge bg-soft-info" style="font-size:12px;">Last 7 days</span>
                   </div>
-                  <div class="chart-box" style="height:190px;"><canvas id="stuLine"></canvas></div>
+                  <div class="chart-box" style="height:180px;"><canvas id="stuLine"></canvas></div>
                 </div>
               </div>
             </div>
@@ -751,24 +693,19 @@
         <div class="row g-3 mt-0">
           <div class="col-lg-6 anim-fade-up">
             <div class="card card-soft p-3 h-100">
-              <h5 class="section-title mb-3">Course Information</h5>
+              <h5 class="section-title mb-3">Class Information</h5>
               <div class="d-flex flex-column gap-2">
-                <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Course</span><b>Web Development</b></div>
-                <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Timing</span><b>Mon–Fri, 6:00–8:00 PM</b></div>
-                <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Teacher</span><b>Sir Ahmed Raza</b></div>
-                <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Duration</span><b>6 Months</b></div>
+                <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Class</span><b id="ptClsInfo">Class 6-A</b></div>
+                <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Class Teacher</span><b id="ptTeacher">Ms. Ayesha Riaz</b></div>
+                <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Timing</span><b id="ptTiming">Mon–Fri, 8:00 AM – 2:00 PM</b></div>
+                <div class="d-flex justify-content-between p-2 rounded-3" style="background:#f8fafc;"><span class="muted" style="font-size:13px;">Session</span><b id="ptDur">Academic Year 2026</b></div>
               </div>
             </div>
           </div>
           <div class="col-lg-6 anim-fade-up d2">
             <div class="card card-soft p-3 h-100">
               <h5 class="section-title mb-3">Payment History</h5>
-              <div class="timeline">
-                <div class="timeline-item success"><b style="font-size:13.5px;">September 2026 — Paid</b><div class="muted" style="font-size:12.5px;">Rs. 5,000 • 02 Sep 2026 • Cash</div></div>
-                <div class="timeline-item success"><b style="font-size:13.5px;">August 2026 — Paid</b><div class="muted" style="font-size:12.5px;">Rs. 5,000 • 03 Aug 2026 • Cash</div></div>
-                <div class="timeline-item success"><b style="font-size:13.5px;">July 2026 — Paid</b><div class="muted" style="font-size:12.5px;">Rs. 5,000 • 05 Jul 2026 • Bank</div></div>
-                <div class="timeline-item"><b style="font-size:13.5px;">June 2026 — Paid</b><div class="muted" style="font-size:12.5px;">Rs. 5,000 • 04 Jun 2026 • Cash</div></div>
-              </div>
+              <div class="timeline" id="ptPayments"></div>
             </div>
           </div>
         </div>
@@ -788,21 +725,28 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
-        <div class="badge bg-soft-info mb-3 anim-pop"><i class="fa-solid fa-id-badge me-1"></i>Auto Student ID: STU-1026 • Auto QR Code generate hoga</div>
+        <div class="badge bg-soft-info mb-3 anim-pop"><i class="fa-solid fa-id-badge me-1"></i>Auto Student ID: <b id="newStuId">STU-1011</b> • QR Code bhi auto generate hoga</div>
         <div class="row g-3">
-          <div class="col-md-6"><label class="form-label small">Full Name</label><input class="form-control" placeholder="e.g. Asad Javed" /></div>
-          <div class="col-md-6"><label class="form-label small">Father Name</label><input class="form-control" placeholder="e.g. Muhammad Javed" /></div>
-          <div class="col-md-6"><label class="form-label small">Phone</label><input class="form-control" placeholder="03XXXXXXXXX" /></div>
-          <div class="col-md-6"><label class="form-label small">Email</label><input class="form-control" type="email" placeholder="student@email.com" /></div>
-          <div class="col-md-6"><label class="form-label small">Course / Class</label>
-            <select class="form-select"><option>Web Development</option><option>Graphic Design</option><option>Digital Marketing</option></select>
+          <div class="col-md-6"><label class="form-label small">Full Name</label><input class="form-control" id="nsName" placeholder="e.g. Usman Ali" /></div>
+          <div class="col-md-6"><label class="form-label small">Father Name</label><input class="form-control" id="nsFather" placeholder="e.g. Muhammad Ali" /></div>
+          <div class="col-md-4"><label class="form-label small">Class (1-8)</label>
+            <select class="form-select" id="nsClass">
+              <option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option>
+              <option value="4">Class 4</option><option value="5">Class 5</option><option value="6" selected>Class 6</option>
+              <option value="7">Class 7</option><option value="8">Class 8</option>
+            </select>
           </div>
-          <div class="col-md-6"><label class="form-label small">Address</label><input class="form-control" placeholder="City / Area" /></div>
+          <div class="col-md-4"><label class="form-label small">Section</label>
+            <select class="form-select" id="nsSection"><option>A</option><option>B</option><option>C</option></select>
+          </div>
+          <div class="col-md-4"><label class="form-label small">Phone</label><input class="form-control" id="nsPhone" placeholder="03XXXXXXXXX" /></div>
+          <div class="col-md-6"><label class="form-label small">Email</label><input class="form-control" type="email" id="nsEmail" placeholder="student@email.com" /></div>
+          <div class="col-md-6"><label class="form-label small">Address</label><input class="form-control" id="nsAddress" placeholder="City / Area" /></div>
         </div>
       </div>
       <div class="modal-footer" style="border-top:1px solid #eef1f8;">
         <button class="btn-ghost" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn-grad" data-bs-dismiss="modal" onclick="toast('success','Student Added','STU-1026 registered • QR Code generated')"><i class="fa-solid fa-check me-1"></i>Register Student</button>
+        <button class="btn-grad" data-bs-dismiss="modal" onclick="registerStudent()"><i class="fa-solid fa-check me-1"></i>Register Student</button>
       </div>
     </div>
   </div>
@@ -812,7 +756,7 @@
 <div class="modal fade" id="addPaymentModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content" style="border-radius:20px;border:0;">
-      <div class="modal-header" style="border-bottom:1px solid #eef1f8;">
+      <div class="modal-header" style="border-top:1px solid #eef1f8;">
         <h5 class="modal-title fw-bold"><i class="fa-solid fa-money-bill-wave me-2 text-success"></i>Receive Fee Payment</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -828,7 +772,7 @@
           </div>
           <div class="col-md-12"><label class="form-label small">For Month</label><input class="form-control" type="month" value="2026-09" /></div>
         </div>
-        <div class="alert alert-warning p-2 mt-3 mb-0" style="font-size:12.5px;border-radius:10px;"><i class="fa-solid fa-circle-info me-1"></i>Remaining balance automatically update hoga (Fee Rs. 5,000 / Paid Rs. 3,000 → Remaining Rs. 2,000)</div>
+        <div class="alert alert-warning p-2 mt-3 mb-0" style="font-size:12.5px;border-radius:10px;"><i class="fa-solid fa-circle-info me-1"></i>Remaining balance automatically update hoga (Fee Rs. 2,500 / Paid Rs. 1,500 → Remaining Rs. 1,000)</div>
       </div>
       <div class="modal-footer" style="border-top:1px solid #eef1f8;">
         <button class="btn-ghost" data-bs-dismiss="modal">Cancel</button>
@@ -847,7 +791,7 @@
         <div style="width:190px;height:190px;margin:0 auto;padding:10px;background:#fff;border-radius:16px;box-shadow:var(--shadow-md);">
           <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=STU-1001" style="width:100%;height:100%;" alt="QR" />
         </div>
-        <p class="muted mt-3 mb-0" style="font-size:12.5px;" id="qrSub">Unique QR Code — scan karein to open detection</p>
+        <p class="muted mt-3 mb-0" style="font-size:12.5px;" id="qrSub">Unique QR Code — scan karein to detect</p>
         <button class="btn-grad w-100 mt-3" data-bs-dismiss="modal"><i class="fa-solid fa-print me-1"></i> Print / Download</button>
       </div>
     </div>
@@ -865,13 +809,13 @@
       <div class="modal-body p-4">
         <div class="table-responsive">
           <table class="table align-middle">
-            <thead><tr><th>Student</th><th>Present</th><th>Absent</th><th>Total</th><th>%</th><th>Status</th></tr></thead>
+            <thead><tr><th>Student</th><th>Class</th><th>Present</th><th>Absent</th><th>Total</th><th>%</th><th>Status</th></tr></thead>
             <tbody>
-              <tr><td><b>Ali Ahmed</b></td><td>22</td><td>2</td><td>24</td><td>92%</td><td><span class="badge-soft bg-soft-success">Good</span></td></tr>
-              <tr><td><b>Asad Javed</b></td><td>21</td><td>3</td><td>24</td><td>87.5%</td><td><span class="badge-soft bg-soft-success">Good</span></td></tr>
-              <tr><td><b>Bilal Ahmed</b></td><td>19</td><td>5</td><td>24</td><td>78%</td><td><span class="badge-soft bg-soft-primary">Fine</span></td></tr>
-              <tr><td><b>Fatima Noor</b></td><td>6</td><td>18</td><td>24</td><td>25%</td><td><span class="badge-soft bg-soft-warning">Low</span></td></tr>
-              <tr><td><b>Hamza Khan</b></td><td>13</td><td>11</td><td>24</td><td>54%</td><td><span class="badge-soft bg-soft-danger">Warning</span></td></tr>
+              <tr><td><b>Ali Ahmed</b></td><td>Class 5-B</td><td>22</td><td>2</td><td>24</td><td>92%</td><td><span class="badge-soft bg-soft-success">Good</span></td></tr>
+              <tr><td><b>Asad Javed</b></td><td>Class 6-A</td><td>21</td><td>3</td><td>24</td><td>87.5%</td><td><span class="badge-soft bg-soft-success">Good</span></td></tr>
+              <tr><td><b>Bilal Ahmed</b></td><td>Class 6-A</td><td>19</td><td>5</td><td>24</td><td>78%</td><td><span class="badge-soft bg-soft-primary">Fine</span></td></tr>
+              <tr><td><b>Fatima Noor</b></td><td>Class 1-C</td><td>6</td><td>18</td><td>24</td><td>25%</td><td><span class="badge-soft bg-soft-warning">Low</span></td></tr>
+              <tr><td><b>Hamza Khan</b></td><td>Class 8-A</td><td>13</td><td>11</td><td>24</td><td>54%</td><td><span class="badge-soft bg-soft-danger">Warning</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -889,6 +833,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="assets/js/students.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>
