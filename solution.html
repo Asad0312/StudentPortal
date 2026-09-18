@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Solution — StudentHub School Management</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<link rel="stylesheet" href="assets/css/style.css" />
+<style>
+  body { padding: 20px 0 60px; }
+  .pitch-wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+  .pitch-header { border-radius: 22px; padding: 34px 30px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #064e3b, #0d9488, #0ea5e9); background-size: 200% 200%;
+    animation: gradientMove 10s ease infinite; color: #fff; box-shadow: var(--shadow-lg); margin-bottom: 24px; }
+  .pitch-header h1 { font-size: 25px; font-weight: 800; }
+  .pitch-header p { opacity: .92; font-size: 14px; margin: 8px 0 0; line-height: 1.7; }
+  .section-tag { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; opacity: .7; }
+  .benefit-table .row-strip { border-radius: 14px; padding: 14px 16px; display: flex; gap: 14px; align-items: flex-start; }
+  .benefit-table .row-strip:nth-child(odd) { background: #f8faff; }
+  .step-num { width: 34px; height: 34px; border-radius: 10px; background: var(--gradient-primary);
+    color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 15px; flex-shrink: 0;
+    box-shadow: 0 6px 14px rgba(99,102,241,.35); }
+  .obj-item { border-left: 4px solid var(--warning); }
+  .obj-item b { color: #b45309; }
+  .qa-row { border-bottom: 1px solid #eef1f8; padding: 14px 4px; }
+  .qa-row:last-child { border-bottom: 0; }
+  .closing { background: linear-gradient(135deg,#17153b,#4f46e5); color: #fff; border-radius: 20px;
+    padding: 28px; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+  .closing::after { content:''; position:absolute; width:200px; height:200px; border-radius:50%;
+    background: rgba(34,211,238,.15); right:-50px; top:-50px; }
+  .print-btn { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+  @media print { .print-btn { display: none; } body { background: #fff; } }
+</style>
+</head>
+<body>
+
+<div class="pitch-wrap">
+
+  <div class="pitch-header anim-fade-up">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <div class="brand-logo" style="width:40px;height:40px;font-size:17px;"><i class="fa-solid fa-school"></i></div>
+      <b style="font-size:15px;">StudentHub &nbsp;|&nbsp; School Management System</b>
+    </div>
+    <div class="section-tag">Stage 02 — The Solution</div>
+    <h1 class="mt-1">One Screen, Complete School Control</h1>
+    <p>A 10-minute demonstration on your own students' data will communicate more than any written proposal.
+       Below is what the system does, and — more importantly — what it saves.</p>
+  </div>
+
+  <!-- Feature -> Benefit -->
+  <div class="section-tag mb-2 text-primary" style="opacity:.8;">Feature to Benefit</div>
+  <h4 class="fw-bold mb-3 anim-fade-up">Har feature ka business impact</h4>
+
+  <div class="benefit-table mb-4">
+    <div class="row-strip anim-fade-up d1">
+      <div class="stat-icon bg-grad-primary" style="width:44px;height:44px;font-size:17px;"><i class="fa-solid fa-id-card"></i></div>
+      <div>
+        <b>QR Student ID Card &amp; Scan-Based Attendance</b>
+        <div class="small muted" style="line-height:1.7;margin-top:2px;">
+          Teacher attendance marking in under a second — no register, no pen, no manual copying.
+          Har student ko apna printed QR ID card milta hai, jise class mein scan karwana hota hai.</div>
+      </div>
+    </div>
+    <div class="row-strip anim-fade-up d1">
+      <div class="stat-icon bg-grad-success" style="width:44px;height:44px;font-size:17px;"><i class="fa-solid fa-id-badge"></i></div>
+      <div>
+        <b>Auto Student ID &amp; Permanent Digital Record</b>
+        <div class="small muted" style="line-height:1.7;margin-top:2px;">
+          Admission par Student ID automatically generate hota hai (STU-1001, STU-1002...).
+          Name, father, phone, class, fee history — sab ek record mein. Saal baad bhi 1 click mein milta hai.</div>
+      </div>
+    </div>
+    <div class="row-strip anim-fade-up d2">
+      <div class="stat-icon bg-grad-warning" style="width:44px;height:44px;font-size:17px;"><i class="fa-solid fa-money-bill-wave"></i></div>
+      <div>
+        <b>Fee Tracking &amp; Outstanding Balance</b>
+        <div class="small muted" style="line-height:1.7;margin-top:2px;">
+          Kisi bhi waqt dekhein kis class mein kitni fee baaki hai. Partial payments, remaining, monthly status —
+          sab hisaab live rehta hai. Koe outstanding balance "yaad se" nahi chhutega.</div>
+      </div>
+    </div>
+    <div class="row-strip anim-fade-up d2">
+      <div class="stat-icon bg-grad-info" style="width:44px;height:44px;font-size:17px;"><i class="fa-solid fa-receipt"></i></div>
+      <div>
+        <b>Proper Payment Receipts</b>
+        <div class="small muted" style="line-height:1.7;margin-top:2px;">
+          Har payment par professional receipt print ho sakta hai. "Already paid" ke disputes khatam —
+          school ke hisaab ki accountability document-supported ho jati hai.</div>
+      </div>
+    </div>
+    <div class="row-strip anim-fade-up d3">
+      <div class="stat-icon" style="width:44px;height:44px;font-size:17px;background:var(--success-light);color:#047857;"><i class="fa-solid fa-chart-line"></i></div>
+      <div>
+        <b>Daily &amp; Monthly Attendance Reports</b>
+        <div class="small muted" style="line-height:1.7;margin-top:2px;">
+          Daily sheet, monthly percentage, class-wise summary — sab printable/PDF.
+          Board visit, parent meeting ya monthly summary ke liye ready record pehle se tayar.</div>
+      </div>
+    </div>
+    <div class="row-strip anim-fade-up d3">
+      <div class="stat-icon" style="width:44px;height:44px;font-size:17px;background:var(--warning-light);color:#b45309;"><i class="fa-solid fa-user-graduate"></i></div>
+      <div>
+        <b>Student Portal — visibility for students &amp; parents</b>
+        <div class="small muted" style="line-height:1.7;margin-top:2px;">
+          Student apne login se attendance, fee status aur apna QR card dekh sakta hai.
+          Parents ko daily visibility milti hai — ye trust directly branding ko support karta hai.</div>
+      </div>
+    </div>
+    <div class="row-strip anim-fade-up d4">
+      <div class="stat-icon" style="width:44px;height:44px;font-size:17px;background:var(--danger-light);color:#be123c;"><i class="fa-solid fa-database"></i></div>
+      <div>
+        <b>Data Backup &amp; Security</b>
+        <div class="small muted" style="line-height:1.7;margin-top:2px;">
+          Records alag location par backup hote hain. Hardware failure ya virus ka risk khatam —
+          data continuity is school ki asli security hai.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo flow -->
+  <div class="section-tag mb-2 text-success" style="opacity:.8;">Live Walkthrough</div>
+  <h4 class="fw-bold mb-3 anim-fade-up">Demo Session — 10 Minute ke 4 Steps</h4>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6 anim-fade-up d1">
+      <div class="card card-soft p-3 d-flex flex-row gap-3 h-100">
+        <div class="step-num">1</div>
+        <div><b>Dashboard Overview</b>
+          <div class="small muted mt-1" style="line-height:1.6;">"Sir, ye aap ka poora school ek screen par — today ka presence, fees collected, aur outstanding."</div></div>
+      </div>
+    </div>
+    <div class="col-md-6 anim-fade-up d2">
+      <div class="card card-soft p-3 d-flex flex-row gap-3 h-100">
+        <div class="step-num">2</div>
+        <div><b>Register a Real Student</b>
+          <div class="small muted mt-1" style="line-height:1.6;">"Aapke school ke class 6 ke kisi real bache ka naam daalte hain — ID khud ban jati hai. Koi jhuta data nahi."</div></div>
+      </div>
+    </div>
+    <div class="col-md-6 anim-fade-up d3">
+      <div class="card card-soft p-3 d-flex flex-row gap-3 h-100">
+        <div class="step-num">3</div>
+        <div><b>QR ID Card Output</b>
+          <div class="small muted mt-1" style="line-height:1.6;">"Is bache ka apna QR card yahan se generate hota hai — same card aap print karwayenge apne students ke liye."</div></div>
+      </div>
+    </div>
+    <div class="col-md-6 anim-fade-up d4">
+      <div class="card card-soft p-3 d-flex flex-row gap-3 h-100">
+        <div class="step-num">4</div>
+        <div><b>Attendance &amp; Fee Flow</b>
+          <div class="small muted mt-1" style="line-height:1.6;">"Scan karne par attendance 1 second mein. Fee wali is bache ki remaining — isi tarah pure school ki."</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q&A / Objections -->
+  <div class="section-tag mb-2 text-danger" style="opacity:.8;">Frequently Raised Concerns</div>
+  <h4 class="fw-bold mb-3 anim-fade-up">School ke sawal, seedhe jawab</h4>
+  <div class="card card-soft p-3 mb-4 anim-fade-up d2">
+    <div class="qa-row">
+      <b>"Hum logon ko computer nahi aata."</b>
+      <div class="small muted mt-1" style="line-height:1.6;">"On-site training included hai — ek din mein apne liye ready ho jayenge. Baad mein bhi WhatsApp par guidence milti rahegi."</div>
+    </div>
+    <div class="qa-row">
+      <b>"Internet par free software available hain."</b>
+      <div class="small muted mt-1" style="line-height:1.6;">"Free tools aap ke data ka support nahi karte, aap ke format ke mutabiq nahi chaltay, aur na hi aapke students ke QR cards banate hain. Ye system is school ke hisab ka tayar hai."</div>
+    </div>
+    <div class="qa-row">
+      <b>"Budget ke andar nahi hai."</b>
+      <div class="small muted mt-1" style="line-height:1.6;">"Ye one-time setup hai. Is ka fund recovery fee tracking ki behtri, operations ke waqt ki bachat, aur parent trust ke zariye hoti hai — accumulated benefit system ki price se zyada hai."</div>
+    </div>
+    <div class="qa-row">
+      <b>"Data secure rahega?"</b>
+      <div class="small muted mt-1" style="line-height:1.6;">"Password-protected login, data local machine par, aur backup alag location par. Koe open website access nahi."</div>
+    </div>
+    <div class="qa-row">
+      <b>"Install ke baad support kahan se milega?"</b>
+      <div class="small muted mt-1" style="line-height:1.6;">"Contact number permanent hai — regular updates aur WhatsApp support system ka hissa hain."</div>
+    </div>
+  </div>
+
+  <!-- Closing -->
+  <div class="closing text-center anim-fade-up d3">
+    <div class="section-tag mt-0" style="color:#a5b4fc;">Proposal</div>
+    <h4 class="fw-bold mb-2 mt-1" style="font-size:21px;">"Sirf ek faisla karna hai"</h4>
+    <p style="font-size:15px;line-height:1.9;">
+      "Kal se ye school <b>system par</b> chalega ya <b>registers par</b>?<br />
+      Main <b>15 din ka trial</b> offer karta hoon — aapke hi data par. Agar result passand na aaye,
+      to koi obligation nahi. Decision aap ke haath mein hai."
+    </p>
+    <div class="d-inline-flex gap-2 flex-wrap justify-content-center mt-2">
+      <span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:8px 14px;font-size:13px;"><i class="fa-solid fa-id-card me-1"></i> Free Trial — 15 Days</span>
+      <span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:8px 14px;font-size:13px;"><i class="fa-solid fa-video me-1"></i> On-Site Demo</span>
+      <span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:8px 14px;font-size:13px;"><i class="fa-solid fa-headset me-1"></i> WhatsApp Support</span>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a class="btn-grad text-decoration-none print-btn" href="#" onclick="window.print();return false;">
+      <i class="fa-solid fa-print me-1"></i> Print / PDF
+    </a>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
