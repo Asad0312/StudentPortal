@@ -31,6 +31,12 @@
       <a class="nav-link-item" data-view="attendance"><i class="fa-solid fa-calendar-check"></i> Attendance</a>
       <a class="nav-link-item" data-view="fees"><i class="fa-solid fa-money-bill-wave"></i> Fee Management</a>
 
+      <div class="nav-section-title">Academics</div>
+      <a class="nav-link-item" data-view="tests"><i class="fa-solid fa-list-check"></i> Test Plan</a>
+      <a class="nav-link-item" data-view="marks"><i class="fa-solid fa-square-poll-vertical"></i> Marks</a>
+      <a class="nav-link-item" data-view="admissions"><i class="fa-solid fa-book-open"></i> Admissions
+        <span class="nav-badge nav-badge-pulse" id="admissionBadge" style="display:none;">0</span></a>
+
       <div class="nav-section-title">Insights</div>
       <a class="nav-link-item" data-view="profile"><i class="fa-solid fa-id-card"></i> Student Profile</a>
       <a class="nav-link-item" data-view="reports"><i class="fa-solid fa-chart-column"></i> Reports</a>
@@ -708,6 +714,122 @@
               <div class="timeline" id="ptPayments"></div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- ================= TEST PLAN VIEW ================= -->
+      <section class="view" id="view-tests">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h4 class="fw-bold mb-0"><i class="fa-solid fa-list-check me-2 text-primary"></i>Test Plan</h4>
+          <span class="muted" style="font-size:13px;">Weekly &amp; Monthly tests — upload hotay hi students ko alert chala jata hai</span>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="card card-soft p-3" style="position:sticky;top:10px;">
+              <h6 class="section-title mb-3"><i class="fa-solid fa-calendar-plus me-1"></i> Schedule New Test</h6>
+              <div class="mb-2">
+                <label class="form-label-sm">Class</label>
+                <select id="tClass" class="form-select form-select-sm"></select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label-sm">Section</label>
+                <select id="tSection" class="form-select form-select-sm">
+                  <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label-sm">Subject / Test Name</label>
+                <input id="tSubject" class="form-control form-control-sm" type="text" placeholder="e.g. Mathematics" />
+              </div>
+              <div class="mb-2">
+                <label class="form-label-sm">Test Type</label>
+                <div class="d-flex gap-2">
+                  <button class="btn-sm grad-btn flex-fill" id="typeWeekly" type="button" data-t="Weekly">Weekly</button>
+                  <button class="btn-sm grad-btn flex-fill" id="typeMonthly" type="button" data-t="Monthly">Monthly</button>
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label-sm">Date</label>
+                  <input id="tDate" class="form-control form-control-sm" type="date" />
+                </div>
+                <div class="col-6">
+                  <label class="form-label-sm">Time</label>
+                  <input id="tTime" class="form-control form-control-sm" type="time" value="10:00" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label-sm">Total Marks</label>
+                <input id="tTotal" class="form-control form-control-sm" type="number" value="50" min="1" />
+              </div>
+              <button class="btn-grad w-100" onclick="createTest()"><i class="fa-solid fa-paper-plane me-1"></i> Upload Test &amp; Send Alert</button>
+            </div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="card card-soft p-3">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <h6 class="section-title mb-0">Scheduled Tests</h6>
+                <div class="d-flex gap-1">
+                  <button class="chip-btn active" id="tfAll" onclick="filterTests('All')">All</button>
+                  <button class="chip-btn" id="tfWeekly" onclick="filterTests('Weekly')">Weekly</button>
+                  <button class="chip-btn" id="tfMonthly" onclick="filterTests('Monthly')">Monthly</button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead><tr>
+                    <th>Type</th><th>Class</th><th>Subject</th><th>Date</th><th>Time</th><th>Marks</th><th class="text-end">Action</th>
+                  </tr></thead>
+                  <tbody id="testsTable"></tbody>
+                </table>
+              </div>
+              <div id="testsEmpty" class="text-center muted py-3" style="font-size:13px;">Koi test schedule nahi hai.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= MARKS VIEW ================= -->
+      <section class="view" id="view-marks">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h4 class="fw-bold mb-0"><i class="fa-solid fa-square-poll-vertical me-2 text-primary"></i>Marks Entry</h4>
+          <span class="muted" style="font-size:13px;">Har test ke results enter karein — students ke portal par foran nazar aathe hain</span>
+        </div>
+
+        <div class="card card-soft p-3 mb-3">
+          <label class="form-label-sm mb-1">Select Test</label>
+          <select id="marksTestSelect" class="form-select form-select-sm" onchange="renderMarksTable()"></select>
+          <div id="marksTestInfo" class="mt-2 py-2 px-3 rounded" style="background:var(--bg-soft);font-size:13px;display:none;"></div>
+        </div>
+
+        <div class="card card-soft p-3">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h6 class="section-title mb-0">Student Results</h6>
+            <button class="btn-grad btn-sm" onclick="saveMarksEntry()"><i class="fa-solid fa-floppy-disk me-1"></i> Save Results</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead><tr><th>Student ID</th><th>Name</th><th>Class</th><th style="width:180px;">Obtained / Max</th><th class="text-end">%</th></tr></thead>
+              <tbody id="marksTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ADMISSIONS VIEW ================= -->
+      <section class="view" id="view-admissions">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h4 class="fw-bold mb-0"><i class="fa-solid fa-book-open me-2 text-primary"></i>Admission Requests</h4>
+          <span class="muted" style="font-size:13px;">Online form se aate hain — ID &amp; password auto-generate hoti hain</span>
+        </div>
+
+        <div id="admissionsList"></div>
+        <div id="admissionsEmpty" class="card card-soft p-4 text-center muted">
+          <i class="fa-solid fa-inbox fa-2x mb-2" style="color:#c4c9d8;"></i>
+          <div>Abhi koi admission request nahi aayi.</div>
+          <div class="small">Students <a href="admission.html" style="color:var(--primary-dark);text-decoration:none;"><b>admission.html</b></a> se form bhar ke bhejte hain — yehi list mein aata hai.</div>
         </div>
       </section>
 

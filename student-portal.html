@@ -189,6 +189,41 @@
     </div>
   </div>
 
+  <!-- ============ TEST ALERTS ============ -->
+  <div class="card card-soft p-4 mt-3 anim-fade-up d2">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+      <h5 class="section-title mb-0"><i class="fa-solid fa-bell me-2 text-warning"></i>Test Alerts</h5>
+      <span class="badge bg-soft-warning" style="font-size:11px;">Naye alerts yahan aate hain</span>
+    </div>
+    <p class="muted small mb-3" style="line-height:1.6;">Admin jab bhi koe test upload karta hai, us class ke har student ko yahan alert aa jata hai — week ka test plan samne rahta hai.</p>
+    <div id="alertList"></div>
+    <div id="alertEmpty" class="muted small py-2"><i class="fa-solid fa-inbox me-1"></i>Abhi koi alert nahi.</div>
+  </div>
+
+  <!-- ============ TEST PLAN ============ -->
+  <div class="card card-soft p-4 mt-3 anim-fade-up d3">
+    <h5 class="section-title mb-3"><i class="fa-solid fa-list-check me-2 text-primary"></i>Test Plan (Weekly &amp; Monthly)</h5>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead><tr><th>Type</th><th>Subject</th><th>Date</th><th>Time</th><th>Total Marks</th><th class="text-end">Status</th></tr></thead>
+        <tbody id="testPlanBody"></tbody>
+      </table>
+    </div>
+    <div id="testPlanEmpty" class="muted small">Is class mein abhi koi test schedule nahi.</div>
+  </div>
+
+  <!-- ============ MY MARKS ============ -->
+  <div class="card card-soft p-4 mt-3 anim-fade-up d4">
+    <h5 class="section-title mb-3"><i class="fa-solid fa-square-poll-vertical me-2 text-success"></i>My Marks / Results</h5>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead><tr><th>Type</th><th>Subject</th><th>Date</th><th>Obtained</th><th>Total</th><th class="text-end">Result</th></tr></thead>
+        <tbody id="marksBody"></tbody>
+      </table>
+    </div>
+    <div id="marksEmpty" class="muted small">Abhi koi result announce nahi hua — admin marks enter karega to yahan aa jayega.</div>
+  </div>
+
   <div class="text-center mt-4">
     <p class="muted" style="font-size:12px;"><i class="fa-solid fa-circle-info me-1"></i>Demo template — student ka data baad mein <b>Laravel + MySQL</b> database se aayega. Har student ke liye alag login hoga.</p>
   </div>
@@ -288,6 +323,73 @@
 
     // Chart
     renderLine(a.week);
+
+    // Academic: alerts, test plan, marks
+    renderAlerts(s);
+    renderTestPlan(s);
+    renderMyMarks(s);
+  }
+
+  function renderAlerts(s) {
+    const list = document.getElementById('alertList');
+    const empty = document.getElementById('alertEmpty');
+    const alerts = getAlerts().filter(a => +a.cls === +s.cls && (!a.section || a.section === s.section)).slice(0, 6);
+    list.innerHTML = '';
+    if (empty) empty.style.display = alerts.length ? 'none' : 'block';
+    alerts.forEach(a => {
+      const div = document.createElement('div');
+      div.className = 'd-flex align-items-start gap-3';
+      div.style.cssText = 'padding:11px 0;border-bottom:1px solid #f1f5f9;';
+      div.innerHTML = '<div class="flex-shrink-0" style="width:36px;height:36px;border-radius:10px;background:var(--warning-light);color:#b45309;display:grid;place-items:center;"><i class="fa-solid fa-bell"></i></div>' +
+        '<div><b style="font-size:13.5px;">' + esc(a.msg) + '</b>' +
+        '<div class="muted" style="font-size:11.5px;">Published: ' + esc(a.at) + '</div></div>';
+      list.appendChild(div);
+    });
+  }
+
+  function renderTestPlan(s) {
+    const tbody = document.getElementById('testPlanBody');
+    const empty = document.getElementById('testPlanEmpty');
+    const tests = getTests().filter(t => +t.cls === +s.cls && t.section === s.section);
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = tests.length ? 'none' : 'block';
+    const today = new Date().toISOString().slice(0, 10);
+    tests.forEach(t => {
+      const done = t.date <= today;
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td><span class="obj-badge ' + (t.type === 'Weekly' ? 'week' : 'month') + '">' + esc(t.type) + '</span></td>' +
+        '<td><b>' + esc(t.subject) + '</b></td>' +
+        '<td>' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + '</td>' +
+        '<td>' + esc(t.time) + '</td>' +
+        '<td>' + t.totalMarks + '</td>' +
+        '<td class="text-end">' + (done ? '<span class="badge bg-soft-info">Completed</span>' : '<span class="badge bg-soft-warning">Upcoming</span>') + '</td>';
+      tbody.appendChild(tr);
+    });
+    if (!tests.length) tbody.innerHTML = '<tr><td colspan="6" class="text-center muted py-3">Is class ka koi test schedule nahi hua</td></tr>';
+  }
+
+  function renderMyMarks(s) {
+    const tbody = document.getElementById('marksBody');
+    const empty = document.getElementById('marksEmpty');
+    const rows = studentMarks(s.id);
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = rows.length ? 'none' : 'block';
+    rows.forEach(m => {
+      const t = getTests().find(x => x.id === m.testId);
+      if (!t) return;
+      const pct = Math.round(m.obtained / t.totalMarks * 100);
+      const resCls = pct >= 80 ? 'bg-soft-success' : pct >= 50 ? 'bg-soft-warning' : 'bg-soft-danger';
+      const label = pct >= 80 ? 'Excellent' : pct >= 50 ? 'Pass' : 'Needs Work';
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td><span class="obj-badge ' + (t.type === 'Weekly' ? 'week' : 'month') + '">' + esc(t.type) + '</span></td>' +
+        '<td><b>' + esc(t.subject) + '</b></td>' +
+        '<td>' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + '</td>' +
+        '<td><b>' + m.obtained + '</b></td>' +
+        '<td>' + t.totalMarks + '</td>' +
+        '<td class="text-end"><span class="badge-soft ' + resCls + '">' + pct + '% ' + label + '</span></td>';
+      tbody.appendChild(tr);
+    });
+    if (!rows.length) tbody.innerHTML = '<tr><td colspan="6" class="text-center muted py-3">Abhi koi result nahi mila</td></tr>';
   }
 
   function renderLine(week) {
@@ -316,6 +418,33 @@
       }
     });
   }
+
+  /* ============ LIVE SYNC (cross-tab) ============ */
+  /* Admin dashboard mein test/marks/alert update hote hi
+     is tab par bina refresh updated data aa jata hai */
+  function portalToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:#17153b;color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;box-shadow:0 12px 30px rgba(23,21,59,.4);display:flex;gap:10px;align-items:center;max-width:320px;';
+    t.innerHTML = '<i class="fa-solid fa-bell" style="color:#fbbf24;"></i><div>' + msg + '</div>';
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = '.5s'; setTimeout(() => t.remove(), 500); }, 4200);
+  }
+
+  window.addEventListener('storage', e => {
+    if (!e || !e.key || !currentStudent) return;
+    if (e.key === 'sh_tests' || e.key === 'sh_marks' || e.key === 'sh_alerts') {
+      renderAlerts(currentStudent);
+      renderTestPlan(currentStudent);
+      renderMyMarks(currentStudent);
+      portalToast(
+        e.key === 'sh_tests'
+          ? 'Naya test plan update aa gaya — Test Plan aur Alerts neeche refresh ho gaye.'
+          : e.key === 'sh_marks'
+            ? 'Admin ne aap ke marks update kar diye — My Marks section neeche check karein.'
+            : 'Naya alert published hua hai — Alerts section dekh lein.'
+      );
+    }
+  });
 
   /* ---------- INIT ---------- */
   (function init() {

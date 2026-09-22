@@ -121,6 +121,16 @@ var DEMO_STUDENTS = [
 /* Current student selected in admin (profile/portal views) */
 var CURRENT_STUDENT = DEMO_STUDENTS[0];
 
+/* Approved admissions ko merge kar lein (demo persistence) */
+(function mergeApproved() {
+  try {
+    var appr = loadArr('sh_approved', []) || [];
+    appr.forEach(function (a) {
+      if (!DEMO_STUDENTS.some(function (s) { return s.id === a.id; })) DEMO_STUDENTS.push(a);
+    });
+  } catch (e) {}
+})();
+
 function clsLabel(s) {
   var num = s.cls || 0;
   var sec = s.section || '';
@@ -157,11 +167,12 @@ function nextStudentId() {
 }
 
 /* ---- Register new student (demo, runtime only) ---- */
-function registerNewStudent(data) {
+function registerNewStudent(data, opts) {
+  opts = opts || {};
   var stu = {
-    id: nextStudentId(),
+    id: opts.id || nextStudentId(),
     name: data.name,
-    password: String(data.name).replace(/\s+/g, '').toLowerCase() + '123',
+    password: opts.password || String(data.name).replace(/\s+/g, '').toLowerCase() + '123',
     fatherName: data.fatherName,
     phone: data.phone,
     email: data.email,
@@ -203,4 +214,190 @@ function setLoggedStudent(student) {
 
 function clearLoggedStudent() {
   localStorage.removeItem('studenthub_student');
+}
+
+/* =====================================================
+   ACADEMIC MODULE — Test Plan, Marks, Alerts, Admissions
+   Demo mein localStorage use hota hai (no backend).
+   Real project mein ye MySQL se aayega.
+   ===================================================== */
+
+function loadArr(key, fallback) {
+  try {
+    var raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) { return fallback; }
+}
+
+function saveArr(key, arr) { localStorage.setItem(key, JSON.stringify(arr)); }
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  var d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function weekdayShort(iso) {
+  if (!iso) return '';
+  var d = new Date(iso + 'T00:00:00');
+  return isNaN(d) ? '' : d.toLocaleDateString('en-US', { weekday: 'short' });
+}
+
+/* ---------- TEST PLAN ---------- */
+
+function seedTests() {
+  return [
+    { id: 'T-001', type: 'Weekly', cls: 6, section: 'A', subject: 'Mathematics', date: '2026-09-25', time: '10:00 AM', totalMarks: 50 },
+    { id: 'T-002', type: 'Weekly', cls: 5, section: 'B', subject: 'English', date: '2026-09-25', time: '11:00 AM', totalMarks: 50 },
+    { id: 'T-003', type: 'Monthly', cls: 6, section: 'A', subject: 'Science', date: '2026-09-30', time: '09:00 AM', totalMarks: 100 }
+  ];
+}
+
+var TESTS = loadArr('sh_tests', null) || seedTests();
+
+function getTests() { return TESTS; }
+function saveTests() { saveArr('sh_tests', TESTS); }
+
+function addTestRec(t) {
+  t.id = 'T-' + String(TESTS.length + 101);
+  var n = TESTS.length;
+  TESTS.forEach(function (x) { var v = parseInt((x.id || '').replace(/[^0-9]/g, ''), 10); if (v > n) n = v; });
+  t.id = 'T-' + (Math.max(n, 0) + 1);
+  TESTS.push(t);
+  saveTests();
+  addAlert({
+    cls: t.cls,
+    section: t.section,
+    msg: t.type + ' Test — ' + t.subject + ' (Class ' + t.cls + '-' + t.section + ') on ' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + ' at ' + t.time + '. Total marks: ' + t.totalMarks
+  });
+  return t;
+}
+
+function deleteTestRec(id) {
+  TESTS = TESTS.filter(function (t) { return t.id !== id; });
+  saveTests();
+  var m = loadArr('sh_marks', seedMarks()).filter(function (x) { return x.testId !== id; });
+  saveArr('sh_marks', m);
+}
+
+function updateTestRec(t) {
+  var found = TESTS.find(function (x) { return x.id === t.id; });
+  if (!found) return null;
+  found.type = t.type; found.cls = t.cls; found.section = t.section; found.subject = t.subject;
+  found.date = t.date; found.time = t.time; found.totalMarks = t.totalMarks;
+  saveTests();
+  addAlert({
+    cls: t.cls, section: t.section,
+    msg: 'Test Updated — ' + t.subject + ' (Class ' + t.cls + '-' + t.section + ') on ' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + ' at ' + t.time + '. Total marks: ' + t.totalMarks
+  });
+  return found;
+}
+
+/* ---------- MARKS ---------- */
+
+function seedMarks() {
+  return [
+    { testId: 'T-001', studentId: 'STU-1001', obtained: 42 },
+    { testId: 'T-001', studentId: 'STU-1004', obtained: 38 },
+    { testId: 'T-003', studentId: 'STU-1001', obtained: 81 },
+    { testId: 'T-003', studentId: 'STU-1004', obtained: 74 }
+  ];
+}
+
+function getMarks() { return loadArr('sh_marks', null) || seedMarks(); }
+
+function markRow(testId, studentId) {
+  return getMarks().find(function (m) { return m.testId === testId && m.studentId === studentId; }) || null;
+}
+
+function saveMark(testId, studentId, obtained, totalMarks) {
+  var all = getMarks();
+  var row = all.find(function (m) { return m.testId === testId && m.studentId === studentId; });
+  if (row) { row.obtained = obtained; }
+  else { all.push({ testId: testId, studentId: studentId, obtained: obtained }); }
+  saveArr('sh_marks', all);
+}
+
+function studentMarks(studentId) {
+  return getMarks().filter(function (m) { return m.studentId === studentId; });
+}
+
+/* ---------- ALERTS ---------- */
+
+function seedAlerts() {
+  return [
+    { id: 'AL-1', cls: 6, section: 'A', msg: 'Weekly Test — Mathematics (Class 6-A) on Fri 25 Sep 2026 at 10:00 AM. Total marks: 50', at: '22 Sep 2026' }
+  ];
+}
+
+function getAlerts() { return loadArr('sh_alerts', null) || seedAlerts(); }
+
+function saveAlerts() { saveArr('sh_alerts', getAlerts()); }
+
+function addAlert(a) {
+  var all = getAlerts();
+  a.id = 'AL-' + (all.length + 1);
+  a.at = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  all.unshift(a);
+  saveArr('sh_alerts', all);
+}
+
+/* ---------- ADMISSIONS ---------- */
+
+function nextAppId() {
+  var all = getAdmissions();
+  return 'APP-2026-' + String(all.length + 1).padStart(3, '0');
+}
+
+function getAdmissions() { return loadArr('sh_ads', []) || []; }
+
+function saveAdmissions() { saveArr('sh_ads', getAdmissions()); }
+
+function submitAdmission(data) {
+  var all = getAdmissions();
+  var ad = {
+    appId: nextAppId(),
+    name: data.name,
+    fatherName: data.fatherName,
+    phone: data.phone,
+    email: data.email,
+    address: data.address,
+    cls: data.cls,
+    section: data.section,
+    studentId: nextStudentId(),
+    password: String(data.name).replace(/\s+/g, '').toLowerCase() + '123',
+    status: 'Pending',
+    date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  };
+  all.unshift(ad);
+  saveArr('sh_ads', all);
+  return ad;
+}
+
+function findAdmission(appId) {
+  return getAdmissions().find(function (a) { return a.appId === appId; }) || null;
+}
+
+function approveAdmission(appId) {
+  var ad = findAdmission(appId);
+  if (!ad) return null;
+  ad.status = 'Approved';
+  saveAdmissions();
+  var stu = registerNewStudent({
+    name: ad.name, fatherName: ad.fatherName, phone: ad.phone,
+    email: ad.email, address: ad.address, cls: ad.cls, section: ad.section
+  }, { id: ad.studentId, password: ad.password });
+  try {
+    var list = loadArr('sh_approved', []) || [];
+    list.push(stu);
+    saveArr('sh_approved', list);
+  } catch (e) {}
+  addAlert({ cls: ad.cls, section: ad.section, msg: 'New student registered: ' + ad.name + ' (Class ' + ad.cls + '-' + ad.section + ') — ID ' + ad.studentId + ' ready for ID card.' });
+  return ad;
+}
+
+function rejectAdmission(appId) {
+  var all = getAdmissions().filter(function (a) { return a.appId !== appId; });
+  saveArr('sh_ads', all);
 }

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StudentHub — Online Admission</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<link rel="stylesheet" href="assets/css/style.css" />
+<style>
+  body { min-height: 100vh; background: linear-gradient(160deg,#eef0ff,#f6f7ff 45%,#e7f7ff); padding: 24px 0 60px; }
+  .ad-wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+  .ad-hero { border-radius: 22px; padding: 30px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg,#17153b,#4f46e5,#8b5cf6); background-size: 200% 200%;
+    animation: gradientMove 10s ease infinite; color: #fff; box-shadow: var(--shadow-lg); margin-bottom: 22px; }
+  .ad-hero h1 { font-size: 24px; font-weight: 800; }
+  .ad-hero p { opacity: .9; font-size: 14px; line-height: 1.7; margin-bottom: 0; }
+  .ad-card { border-radius: 20px; border: 0; box-shadow: var(--shadow-sm); }
+  .ad-card .form-control { border: 2px solid #e6e9f5; border-radius: 12px; padding: 11px 14px; font-size: 14px; }
+  .ad-card .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 .2rem rgba(99,102,241,.12); }
+  .ad-card label { font-size: 12.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block; }
+  .tick-step { display: flex; gap: 4px; align-items: center; font-size: 12px; opacity: .9; }
+  .tick-step i { margin-right: 4px; }
+  .success-box { border: 2px dashed #34d399; border-radius: 18px; background: #ecfdf5; padding: 18px; animation: popIn .5s ease; }
+  .cred-chip { background: #fff; border: 1px solid #d1fae5; border-radius: 12px; padding: 12px 14px; }
+  .cred-chip .k { font-size: 11.5px; color: var(--text-muted); }
+  .cred-chip .v { font-weight: 800; font-size: 15px; color: var(--text-dark); }
+  .back-link { color: var(--text-muted); font-size: 13px; text-decoration: none; font-weight: 600; }
+  .back-link:hover { color: var(--primary-dark); }
+</style>
+</head>
+<body>
+
+<div class="ad-wrap">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-2">
+      <div class="brand-logo" style="width:38px;height:38px;font-size:16px;"><i class="fa-solid fa-school"></i></div>
+      <b style="font-size:15px;color:var(--text-dark);">StudentHub</b>
+      <span class="badge bg-soft-primary" style="font-size:11px;color:#4f46e5;">Online Admission</span>
+    </div>
+    <a class="back-link" href="index.html"><i class="fa-solid fa-arrow-left me-1"></i> Back to Login</a>
+  </div>
+
+  <div class="ad-hero anim-fade-up">
+    <div class="section-tag text-white">Admission Form</div>
+    <h1 class="mt-1">Online Admission Form</h1>
+    <p>Form bhar kar submit karein. Aap ka <b>Application ID</b>, <b>Student ID</b> aur <b>Login Password</b> khud generate ho jata hai.
+    School administration approval ke baad aap apni ID / Password se portal mein login kar sakte hain.</p>
+  </div>
+
+  <!-- Form -->
+  <div class="card ad-card p-4 p-md-5 anim-fade-up d1" id="formCard">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+      <h4 class="fw-bold mb-0"><i class="fa-solid fa-user-plus me-2 text-primary"></i>New Admission Request</h4>
+      <div class="d-flex flex-column gap-1">
+        <span class="tick-step"><i class="fa-solid fa-circle-check text-success"></i> Application ID auto-generate</span>
+        <span class="tick-step"><i class="fa-solid fa-circle-check text-success"></i> Student ID + Password auto-generate</span>
+        <span class="tick-step"><i class="fa-solid fa-circle-check text-success"></i> Approval ke baad portal login</span>
+      </div>
+    </div>
+
+    <form id="adForm" onsubmit="return submitForm(event)">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label>Full Name</label>
+          <input class="form-control" id="fName" placeholder="e.g. Usman Ali" required />
+        </div>
+        <div class="col-md-6">
+          <label>Father Name</label>
+          <input class="form-control" id="fFather" placeholder="e.g. Muhammad Ali" required />
+        </div>
+        <div class="col-md-6">
+          <label>Phone / Mobile</label>
+          <input class="form-control" id="fPhone" placeholder="03XXXXXXXXX" required />
+        </div>
+        <div class="col-md-6">
+          <label>Email (optional)</label>
+          <input class="form-control" type="email" id="fEmail" placeholder="student@email.com" />
+        </div>
+        <div class="col-md-6">
+          <label>Class (1 to 8)</label>
+          <select class="form-select" id="fClass" style="padding:10.5px 14px;"></select>
+        </div>
+        <div class="col-md-6">
+          <label>Section</label>
+          <select class="form-select" id="fSection" style="padding:10.5px 14px;">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label>Home Address</label>
+          <input class="form-control" id="fAddress" placeholder="Area / City" />
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="reset" class="btn-ghost" style="padding:10px 22px;">Clear</button>
+        <button type="submit" class="btn-grad border-0"><i class="fa-solid fa-paper-plane me-1"></i> Submit Admission</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Success / Credentials -->
+  <div class="card ad-card p-4 p-md-5 anim-fade-up d2" id="doneCard" style="display:none;">
+    <div class="success-box mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="stat-icon bg-grad-success" style="width:52px;height:52px;font-size:22px;flex-shrink:0;"><i class="fa-solid fa-check"></i></div>
+        <div>
+          <h5 class="fw-bold mb-1">Admission Request Submitted</h5>
+          <div class="muted" style="font-size:13px;">Aap ki form school administration ke paas pahunch gayi. Approval ke baad hi records final hotay hain.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <h5 class="fw-bold mb-0"><i class="fa-solid fa-key me-2 text-primary"></i>Aap ki Auto-Generated Credentials</h5>
+      <span class="badge bg-soft-warning" style="font-size:11.5px;">Yeh ID &amp; Password save rakhein</span>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-4"><div class="cred-chip">
+        <div class="k">Application ID</div>
+        <div class="v" id="cApp">—</div>
+        <div class="muted mt-1" style="font-size:11px;">Admin ko batane ke liye</div>
+      </div></div>
+      <div class="col-md-4"><div class="cred-chip">
+        <div class="k">Student ID (Login ID)</div>
+        <div class="v" id="cSid">—</div>
+        <div class="muted mt-1" style="font-size:11px;">Portal login ke liye</div>
+      </div></div>
+      <div class="col-md-4"><div class="cred-chip">
+        <div class="k">Login Password</div>
+        <div class="v" id="cPass">—</div>
+        <div class="muted mt-1" style="font-size:11px;">Portal login ke liye</div>
+      </div></div>
+    </div>
+
+    <div class="mt-3 p-3 rounded-3" style="background:var(--bg-soft);font-size:13px;line-height:1.8;">
+      <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+      <b>Next step:</b> Admin is request ko <b>approve</b> karega — phir aap <b>Student ID</b> (STU-…)
+      aur <b>Password</b> apne school office se le kar portal mein login kar saktay. Abhi status <b>Pending</b> hai.
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+      <a class="btn-ghost text-decoration-none" href="index.html"><i class="fa-solid fa-arrow-left me-1"></i> Back to Login</a>
+      <button class="btn-grad border-0" onclick="newForm()"><i class="fa-solid fa-plus me-1"></i> Another Admission</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="assets/js/students.js"></script>
+<script>
+  (function () {
+    const sel = document.getElementById('fClass');
+    for (let i = 1; i <= 8; i++) sel.insertAdjacentHTML('beforeend', '<option value="' + i + '">Class ' + i + '</option>');
+  })();
+
+  function submitForm(e) {
+    e.preventDefault();
+    const data = {
+      name: document.getElementById('fName').value.trim(),
+      fatherName: document.getElementById('fFather').value.trim(),
+      phone: document.getElementById('fPhone').value.trim(),
+      email: document.getElementById('fEmail').value.trim(),
+      address: document.getElementById('fAddress').value.trim(),
+      cls: +document.getElementById('fClass').value,
+      section: document.getElementById('fSection').value
+    };
+    if (!data.name || !data.fatherName || !data.phone) {
+      alert('Name, Father aur Phone zaroori hai.');
+      return false;
+    }
+    const ad = submitAdmission(data);
+    document.getElementById('cApp').textContent = ad.appId;
+    document.getElementById('cSid').textContent = ad.studentId;
+    document.getElementById('cPass').textContent = ad.password;
+    document.getElementById('formCard').style.display = 'none';
+    const done = document.getElementById('doneCard');
+    done.style.display = '';
+    done.scrollIntoView({ behavior: 'smooth' });
+    return false;
+  }
+
+  function newForm() {
+    document.getElementById('adForm').reset();
+    document.getElementById('doneCard').style.display = 'none';
+    document.getElementById('formCard').style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

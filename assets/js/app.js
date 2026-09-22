@@ -5,6 +5,9 @@ const viewTitles = {
   scanner: ['QR Scanner', 'Scan karne par attendance automatic mark'],
   attendance: ['Attendance', 'Daily & monthly attendance records'],
   fees: ['Fee Management', 'September 2026 • monthly fees & payments'],
+  tests: ['Test Plan', 'Weekly & monthly tests — alert bharday jate hain'],
+  marks: ['Marks', 'Test results enter karke students ke paas bhejein'],
+  admissions: ['Admissions', 'Online requests — ID & password auto generated'],
   profile: ['Student Profile', 'ID se student search karke dekhein'],
   reports: ['Reports', 'Attendance, fees & backups'],
   portal: ['Student Portal', 'Student ka apna view (preview)']
@@ -26,6 +29,10 @@ function switchView(view) {
   /* render dynamic views from current student */
   if (view === 'profile') renderProfileView(CURRENT_STUDENT);
   if (view === 'portal') renderPortalView(CURRENT_STUDENT);
+  if (view === 'tests') renderTestsTable();
+  if (view === 'marks') { fillTestsSelect(true); renderMarksTable(); }
+  if (view === 'admissions') renderAdmissions();
+  updateAdmissionBadge();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -370,6 +377,11 @@ window.addEventListener('load', () => {
   buildStudentsTable();
   renderProfileView(CURRENT_STUDENT);
   renderPortalView(CURRENT_STUDENT);
+  initTestForm();
+  renderTestsTable();
+  fillTestsSelect(false);
+  renderAdmissions();
+  updateAdmissionBadge();
 });
 
 /* ============ QR SCANNER ============ */
@@ -455,4 +467,297 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
     group.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
   });
+});
+
+/* ============ TEST PLAN (weekly / monthly) ============ */
+let testsFilter = 'All';
+let testType = 'Weekly';
+let editingTestId = null;
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function initTestForm() {
+  const sel = document.getElementById('tClass');
+  if (sel) {
+    for (let i = 1; i <= 8; i++) sel.insertAdjacentHTML('beforeend', '<option value="' + i + '">Class ' + i + '</option>');
+  }
+  const d = document.getElementById('tDate');
+  if (d) d.value = new Date().toISOString().slice(0, 10);
+  setTestType('Weekly');
+}
+
+function setTestType(t) {
+  testType = t;
+  const w = document.getElementById('typeWeekly');
+  const m = document.getElementById('typeMonthly');
+  if (w && m) {
+    const act = 'active';
+    [w, m].forEach(b => b.classList.remove(act));
+    (t === 'Weekly' ? w : m).classList.add(act);
+  }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-t]');
+  if (b) setTestType(b.dataset.t);
+});
+
+function createTest() {
+  const cls = +document.getElementById('tClass').value;
+  const section = document.getElementById('tSection').value;
+  const subject = document.getElementById('tSubject').value.trim();
+  const date = document.getElementById('tDate').value;
+  const time = document.getElementById('tTime').value;
+  const totalMarks = +document.getElementById('tTotal').value;
+
+  if (!subject) { toast('error', 'Subject required', 'Test ka subject/name likhein'); return; }
+  if (!date) { toast('error', 'Date required', 'Test ki date select karein'); return; }
+  if (!totalMarks || totalMarks < 1) { toast('error', 'Invalid marks', 'Total marks 1 se zyada hona chahiye'); return; }
+
+  if (editingTestId) {
+    const upd = updateTestRec({ id: editingTestId, type: testType, cls: cls, section: section, subject: subject, date: date, time: time, totalMarks: totalMarks });
+    resetTestForm();
+    renderTestsTable();
+    fillTestsSelect(false);
+    toast('success', 'Test Updated', upd.type + ' — ' + upd.subject + ' (Class ' + upd.cls + '-' + upd.section + '). Students ko update alert bhej diya gaya.');
+  } else {
+    const t = addTestRec({ type: testType, cls: cls, section: section, subject: subject, date: date, time: time, totalMarks: totalMarks });
+    renderTestsTable();
+    fillTestsSelect(false);
+    toast('success', 'Test Uploaded', testType + ' — ' + subject + ' (Class ' + cls + '-' + section + '). Alert students ko bhej diya gaya.');
+  }
+}
+
+function resetTestForm() {
+  editingTestId = null;
+  document.getElementById('tClass').value = 1;
+  document.getElementById('tSection').value = 'A';
+  document.getElementById('tSubject').value = '';
+  document.getElementById('tDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('tTime').value = '10:00';
+  document.getElementById('tTotal').value = 50;
+  setTestType('Weekly');
+  const btn = document.querySelector('#view-tests [onclick="createTest()"]');
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Upload Test &amp; Send Alert';
+}
+
+function editTest(id) {
+  const t = getTests().find(x => x.id === id);
+  if (!t) return;
+  editingTestId = t.id;
+  document.getElementById('tClass').value = t.cls;
+  document.getElementById('tSection').value = t.section;
+  document.getElementById('tSubject').value = t.subject;
+  document.getElementById('tDate').value = t.date;
+  document.getElementById('tTime').value = t.time;
+  document.getElementById('tTotal').value = t.totalMarks;
+  setTestType(t.type);
+  const btn = document.querySelector('#view-tests [onclick="createTest()"]');
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-pen-to-square me-1"></i> Update Test';
+  const form = document.querySelector('#view-tests .card');
+  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast('info', 'Editing: ' + t.id, t.type + ' — ' + t.subject + ' (Class ' + t.cls + '-' + t.section + '). Changes karke "Update Test" dabayen.');
+}
+
+function renderTestsTable() {
+  const tbody = document.getElementById('testsTable');
+  const empty = document.getElementById('testsEmpty');
+  if (!tbody) return;
+
+  const rows = getTests().filter(t => testsFilter === 'All' || t.type === testsFilter);
+  tbody.innerHTML = '';
+  if (empty) empty.style.display = rows.length ? 'none' : 'block';
+
+  rows.forEach(t => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span class="obj-badge ' + (t.type === 'Weekly' ? 'week' : 'month') + '">' + esc(t.type) + '</span></td>' +
+      '<td><b>Class ' + t.cls + '-' + t.section + '</b></td>' +
+      '<td>' + esc(t.subject) + '</td>' +
+      '<td>' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + '</td>' +
+      '<td>' + esc(t.time) + '</td>' +
+      '<td class="fw-600">' + t.totalMarks + '</td>' +
+      '<td class="text-end">' +
+        '<button class="mini-btn btn-icon-info" onclick="fillTestsSelect(true);document.getElementById(\'marksTestSelect\').value=\'' + t.id + '\';switchView(\'marks\');renderMarksTable();" title="Enter Marks"><i class="fa-solid fa-square-poll-vertical"></i></button>' +
+        '<button class="mini-btn btn-icon-warning" onclick="editTest(\'' + t.id + '\')" title="Edit Test"><i class="fa-solid fa-pen"></i></button>' +
+        '<button class="mini-btn btn-icon-danger" onclick="deleteTest(\'' + t.id + '\')" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
+      '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function filterTests(type) {
+  testsFilter = type;
+  ['tfAll', 'tfWeekly', 'tfMonthly'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', id === ('tf' + type));
+  });
+  renderTestsTable();
+}
+
+function deleteTest(id) {
+  if (!confirm('Is test ko delete karein? Us ke marks bhi hata liye jayenge.')) return;
+  deleteTestRec(id);
+  renderTestsTable();
+  fillTestsSelect(false);
+  toast('info', 'Test Deleted', 'Test plan se remove ho gaya.');
+}
+
+/* ============ MARKS ENTRY ============ */
+function fillTestsSelect(keep) {
+  const sel = document.getElementById('marksTestSelect');
+  if (!sel) return;
+  const prev = keep && sel.value ? sel.value : '';
+  const tests = getTests();
+  sel.innerHTML = tests.length
+    ? '<option value="">Select test...</option>' + tests.map(t =>
+        '<option value="' + t.id + '">' + esc(t.type) + ' — ' + esc(t.subject) + ' (Class ' + t.cls + '-' + t.section + ') • ' + fmtDate(t.date) + '</option>').join('')
+    : '<option value="">Koi test nahi schedule hai</option>';
+  if (prev && tests.some(t => t.id === prev)) sel.value = prev;
+}
+
+function renderMarksTable() {
+  const sel = document.getElementById('marksTestSelect');
+  const info = document.getElementById('marksTestInfo');
+  const tbody = document.getElementById('marksTable');
+  if (!sel || !tbody) return;
+  const t = getTests().find(x => x.id === sel.value);
+  if (!t) {
+    tbody.innerHTML = '';
+    info.style.display = 'none';
+    return;
+  }
+  const mks = getMarks();
+  info.style.display = 'block';
+  info.innerHTML = '<i class="fa-solid fa-info-circle me-1"></i><b>' + esc(t.type) + '</b> — <b>' + esc(t.subject) + '</b>, Class ' + t.cls + '-' + t.section + ' • ' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + ' • Total: ' + t.totalMarks + ' marks. Jitne marks hue hain unhe niche enter karein.';
+
+  const students = DEMO_STUDENTS.filter(s => s.cls === t.cls && s.section === t.section);
+  tbody.innerHTML = '';
+  students.forEach(s => {
+    const r = mks.find(m => m.testId === t.id && m.studentId === s.id);
+    const pct = r ? Math.round(r.obtained / t.totalMarks * 100) : 0;
+    const grad = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#f43f5e';
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="fw-600">' + s.id + '</td>' +
+      '<td><div class="stu-cell"><img class="avatar-sm" src="' + s.avatar + '" alt=""/><div><b>' + esc(s.name) + '</b></div></div></td>' +
+      '<td>' + clsLabel(s) + '</td>' +
+      '<td><div class="input-group input-group-sm">' +
+        '<input type="number" class="form-control mark-inp" data-test="' + t.id + '" data-sid="' + s.id + '" min="0" max="' + t.totalMarks + '" placeholder="—" value="' + (r ? r.obtained : '') + '"' + (r ? '' : '') + ' />' +
+        '<span class="input-group-text" style="background:#fff;border-left:0;">/ ' + t.totalMarks + '</span>' +
+      '</div></td>' +
+      '<td class="text-end fw-600" style="color:' + grad + ';">' + (r ? pct + '%' : '—') + '</td>';
+    tbody.appendChild(tr);
+  });
+  if (!students.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center muted py-3">Is class ka koi student nahi mila.</td></tr>';
+}
+
+function saveMarksEntry() {
+  const t = getTests().find(x => x.id === document.getElementById('marksTestSelect').value);
+  if (!t) { toast('error', 'Koi test select karein', 'Pehle test choose karein'); return; }
+  let saved = 0;
+  document.querySelectorAll('.mark-inp').forEach(inp => {
+    if (inp.value !== '' && inp.value !== null) {
+      saveMark(inp.dataset.test, inp.dataset.sid, +inp.value, t.totalMarks);
+      saved++;
+    }
+  });
+  saveArr('sh_marks', getMarks());
+  renderMarksTable();
+  const msg = saved
+    ? saved + ' student ke marks save ho gaye. Students ke portal par foran updated.'
+    : 'Koi marks enter nahi the. Sirf bhari hui entries save hui.';
+  toast('success', 'Results Saved', msg);
+}
+
+/* ============ ADMISSIONS ============ */
+function updateAdmissionBadge() {
+  const b = document.getElementById('admissionBadge');
+  if (!b) return;
+  const pend = getAdmissions().filter(a => a.status === 'Pending' || a.status === 'Pending').length;
+  b.style.display = pend ? 'inline-block' : 'none';
+  b.textContent = pend;
+}
+
+function renderAdmissions() {
+  const list = document.getElementById('admissionsList');
+  const empty = document.getElementById('admissionsEmpty');
+  if (!list) return;
+  const ads = getAdmissions();
+  if (empty) empty.style.display = ads.length ? 'none' : 'block';
+  list.innerHTML = '';
+
+  ads.forEach(a => {
+    const approved = a.status === 'Approved';
+    const card = document.createElement('div');
+    card.className = 'card card-soft p-3 mb-3';
+    card.innerHTML =
+      '<div class="d-flex flex-wrap gap-3 align-items-start">' +
+        '<img class="avatar" style="width:52px;height:52px;" src="https://api.dicebear.com/8.x/initials/svg?seed=' + encodeURIComponent(a.name) + '" alt=""/>' +
+        '<div class="flex-grow-1" style="min-width:200px;">' +
+          '<div class="d-flex flex-wrap align-items-center gap-2">' +
+            '<b style="font-size:15px;">' + esc(a.name) + '</b>' +
+            '<span class="badge-soft ' + (approved ? 'bg-soft-success' : 'bg-soft-warning') + '">' + esc(a.status) + '</span>' +
+            '<span class="badge-soft bg-soft-info">' + esc(a.appId) + '</span>' +
+          '</div>' +
+          '<div class="small muted mt-1" style="line-height:1.8;">' +
+            'Father: <b>' + esc(a.fatherName) + '</b> • Phone: <b>' + esc(a.phone) + '</b> • Class: <b>' + a.cls + '-' + a.section + '</b><br/>' +
+            esc(a.address || '') + (a.email ? ' • ' + esc(a.email) : '') + '<br/>' +
+            'Submitted: ' + a.date +
+          '</div>' +
+          '<div class="mt-1 row g-2">' +
+            '<div class="col-md-2"><label class="form-label-sm">Auto Student ID</label><input class="form-control form-control-sm" readonly value="' + esc(a.studentId) + '" onclick="this.select()"/></div>' +
+            '<div class="col-md-2"><label class="form-label-sm">Login Password</label><input class="form-control form-control-sm" readonly value="' + esc(a.password) + '" onclick="this.select()"/></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="d-flex gap-2">' +
+(approved
+            ? '<button class="btn-sm grad-btn" onclick="window.open(\'index.html\',\'_blank\')"><i class="fa-solid fa-eye me-1"></i> Student ko btayen: apni ID/Password se login karein</button>'
+            : '<button class="btn-sm grad-btn" onclick="approveAd(\'' + a.appId + '\',this)"><i class="fa-solid fa-check me-1"></i> Approve</button>' +
+              '<button class="btn-sm btn-soft-danger" onclick="rejectAd(\'' + a.appId + '\')"><i class="fa-solid fa-xmark me-1"></i> Reject</button>') +
+        '</div>' +
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+function approveAd(appId, btn) {
+  const ad = approveAdmission(appId);
+  if (!ad) return;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Approved'; }
+  renderAdmissions();
+  buildStudentsTable();
+  updateAdmissionBadge();
+  toast('success', 'Admission Approved', ad.name + ' ab registered hai. Student ID: ' + ad.studentId + ' • Password: ' + ad.password + ' — student ko ID/Password den.');
+}
+
+function rejectAd(appId) {
+  if (!confirm('Is admission request ko reject karein?')) return;
+  rejectAdmission(appId);
+  renderAdmissions();
+  updateAdmissionBadge();
+  toast('info', 'Request Rejected', 'Admission request remove ho gayi.');
+}
+
+/* ============ LIVE SYNC (cross-tab) ============ */
+/* smartphone ya dosre tab se koi admission form bhar de to
+   admin ko turant (bina refresh) update mil jata hai */
+window.addEventListener('storage', e => {
+  if (!e || !e.key) return;
+  if (e.key === 'sh_ads') {
+    const pend = getAdmissions().filter(a => a.status === 'Pending');
+    renderAdmissions();
+    updateAdmissionBadge();
+    if (pend.length) {
+      toast('success', 'New Admission Request!', pend[0].name + ' (' + pend[0].appId + ') ne form submit kiya hai. Approve/Reject kar sakte hain.');
+      const badge = document.getElementById('admissionBadge');
+      if (badge && badge.style.display !== 'none') { badge.style.animation = 'none'; void badge.offsetWidth; badge.style.animation = ''; }
+    }
+  }
+  if (e.key === 'sh_tests') {
+    renderTestsTable();
+    fillTestsSelect(false);
+  }
+  if (e.key === 'sh_marks') {
+    renderTestsTable();
+  }
 });
