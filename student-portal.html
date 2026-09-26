@@ -403,8 +403,8 @@
         datasets: [{
           label: 'Attendance',
           data: week,
-          borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,.12)',
-          fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#6366f1', borderWidth: 3
+          borderColor: '#0d9488', backgroundColor: 'rgba(13,148,136,.12)',
+          fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#0d9488', borderWidth: 3
         }]
       },
       options: {
@@ -424,7 +424,7 @@
      is tab par bina refresh updated data aa jata hai */
   function portalToast(msg) {
     const t = document.createElement('div');
-    t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:#17153b;color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;box-shadow:0 12px 30px rgba(23,21,59,.4);display:flex;gap:10px;align-items:center;max-width:320px;';
+    t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:#0b1220;color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;box-shadow:0 12px 30px rgba(11,18,32,.4);display:flex;gap:10px;align-items:center;max-width:320px;';
     t.innerHTML = '<i class="fa-solid fa-bell" style="color:#fbbf24;"></i><div>' + msg + '</div>';
     document.body.appendChild(t);
     setTimeout(() => { t.style.opacity = '0'; t.style.transition = '.5s'; setTimeout(() => t.remove(), 500); }, 4200);
@@ -456,5 +456,6 @@
     render(student);
   })();
 </script>
+<script src="assets/js/enhance.js"></script>
 </body>
 </html>

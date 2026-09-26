@@ -240,18 +240,36 @@ function registerStudent() {
     section: (document.getElementById('nsSection') || {}).value || 'A'
   };
 
-  if (!data.name) { toast('error', 'Naam Required', 'Student ka full name likhein'); return; }
+  if (!data.name) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Name Required',
+      text: 'Student ka full name likhein',
+      confirmButtonText: 'OK',
+      customClass: { popup: 'sh-swal', confirmButton: 'sh-swal-confirm' },
+      buttonsStyling: false
+    });
+    return;
+  }
 
   const stu = registerNewStudent(data);
   buildStudentsTable();
   updateNextId();
-  toast('success', 'Student Registered ✦', stu.id + ' • Auto QR Code generate ho gaya');
   renderProfileView(stu);
   switchView('profile');
 
   ['nsName','nsFather','nsPhone','nsEmail','nsAddress'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
+  });
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Student Registered! ✦',
+    html: '<b>' + stu.name + '</b> has been added.<br/>ID: <b>' + stu.id + '</b> — QR code auto-generated.',
+    confirmButtonText: 'View Profile',
+    customClass: { popup: 'sh-swal', confirmButton: 'sh-swal-confirm' },
+    buttonsStyling: false
   });
 }
 
@@ -269,7 +287,7 @@ function chartBar(ctxId, delay) {
       datasets: [{
         label: 'Present',
         data: [198, 205, 210, 190, 215],
-        backgroundColor: 'rgba(99,102,241,.85)',
+        backgroundColor: 'rgba(13,148,136,.85)',
         borderRadius: 8, barThickness: 22
       }, {
         label: 'Absent',
@@ -314,7 +332,7 @@ function chartReportBar(ctxId) {
     data: {
       labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
       datasets: [{ label: 'Attendance %', data: [88, 79, 92, 83],
-        backgroundColor: ['#6366f1', '#8b5cf6', '#10b981', '#0ea5e9'], borderRadius: 10, barThickness: 30 }]
+        backgroundColor: ['#0d9488', '#f59e0b', '#10b981', '#0ea5e9'], borderRadius: 10, barThickness: 30 }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -334,7 +352,7 @@ function chartReportDoughnut(ctxId) {
     type: 'doughnut',
     data: {
       labels: ['Class 1-4', 'Class 5-6', 'Class 7-8'],
-      datasets: [{ data: [60, 115, 75], backgroundColor: ['#6366f1', '#10b981', '#f59e0b'],
+      datasets: [{ data: [60, 115, 75], backgroundColor: ['#0d9488', '#10b981', '#f59e0b'],
         borderWidth: 3, borderColor: '#fff', hoverOffset: 12 }]
     },
     options: {
@@ -353,9 +371,9 @@ function renderPreviewLine(week) {
     type: 'line',
     data: {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      datasets: [{ label: 'Attendance', data: week, borderColor: '#6366f1',
-        backgroundColor: 'rgba(99,102,241,.12)', fill: true, tension: .4,
-        pointRadius: 4, pointBackgroundColor: '#6366f1', borderWidth: 3 }]
+      datasets: [{ label: 'Attendance', data: week, borderColor: '#0d9488',
+        backgroundColor: 'rgba(13,148,136,.12)', fill: true, tension: .4,
+        pointRadius: 4, pointBackgroundColor: '#0d9488', borderWidth: 3 }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
