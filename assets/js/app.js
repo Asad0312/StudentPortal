@@ -16,8 +16,8 @@ const viewTitles = {
   marks: ['Marks', 'Test results enter karke students ke paas bhejein'],
   admissions: ['Admissions', 'Online requests — ID & password auto generated'],
   messages: ['Messages', 'Teachers aur Students dono ko message bhejein'],
-  teachers: ['Teachers', 'School ke sare teachers aur unke subjects'],
-  users: ['Manage Users', 'Kisi bhi teacher ya student ka login add karein'],
+  exams: ['Exams & Exam Fee', 'Exam ka month aur alag fee — students ko WhatsApp/SMS'],
+  books: ['Books', 'Class-wise books upload karein'],
   profile: ['Student Profile', 'ID se student search karke dekhein'],
   reports: ['Reports', 'Attendance, fees & backups'],
   portal: ['Student Portal', 'Student ka apna view (preview)']
@@ -41,10 +41,12 @@ function switchView(view) {
   if (view === 'portal') renderPortalView(CURRENT_STUDENT);
   if (view === 'tests') renderTestsTable();
   if (view === 'marks') { fillTestsSelect(true); renderMarksTable(); }
-  if (view === 'admissions') renderAdmissions();
+  if (view === 'admissions') { fillStuForms(); renderAdmissions(); }
+  if (view === 'attendance') renderAttendance();
   if (view === 'messages') renderAdminMessages();
-  if (view === 'teachers') renderTeachers();
-  if (view === 'users') { initUserForm(); renderUsers(); }
+  if (view === 'exams') renderExams();
+  if (view === 'books') { renderBooks(); loadBookTemplate(); }
+  if (view === 'fees') renderFeeTable();
   updateAdmissionBadge();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -60,7 +62,7 @@ function toggleSidebar(open) {
 }
 
 function selStudent() { return CURRENT_STUDENT; }
-function printQR() { window.print(); }
+function printQR() { printIdCard(CURRENT_STUDENT); }
 
 /* ============ ANIMATED COUNTERS ============ */
 function animateCounter(el) {
@@ -99,7 +101,7 @@ function buildStudentsTable() {
     const tr = document.createElement('tr');
     tr.innerHTML =
       '<td><div class="stu-cell"><img class="avatar-sm" src="' + s.avatar + '" alt=""/>' +
-        '<div><b>' + s.name + '</b><span>' + s.email + '</span></div></div></td>' +
+        '<div><b>' + s.name + '</b><span>' + s.phone + '</span></div></div></td>' +
       '<td class="fw-600">' + s.id + '</td>' +
       '<td>' + cl + '</td>' +
       '<td>' + s.phone + '</td>' +
@@ -172,7 +174,7 @@ function renderProfileView(s) {
   if (get('pFullName'))get('pFullName').textContent = s.name;
   if (get('pFather'))  get('pFather').textContent = s.fatherName;
   if (get('pPhone'))   get('pPhone').textContent = s.phone;
-  if (get('pEmail'))   get('pEmail').textContent = s.email;
+  if (get('pEmail'))   get('pEmail').textContent = s.email || '—';
   if (get('pClsSec'))  get('pClsSec').textContent = cl;
   if (get('pAdmission')) get('pAdmission').textContent = s.admission;
 
@@ -247,10 +249,10 @@ function registerStudent() {
     name: (document.getElementById('nsName') || {}).value,
     fatherName: (document.getElementById('nsFather') || {}).value,
     phone: (document.getElementById('nsPhone') || {}).value,
-    email: (document.getElementById('nsEmail') || {}).value,
+    email: '', fee: +(document.getElementById('nsFee') || {}).value, stream: (document.getElementById('nsType') || {}).value || 'school', madarsaSection: (document.getElementById('nsMSec') || {}).value || 'A',
     address: (document.getElementById('nsAddress') || {}).value,
     cls: parseInt((document.getElementById('nsClass') || {}).value || '6', 10),
-    section: (document.getElementById('nsSection') || {}).value || 'A'
+    section: ''
   };
 
   if (!data.name) {
@@ -414,7 +416,11 @@ window.addEventListener('load', () => {
   renderAdmissions();
   updateAdmissionBadge();
   renderAdminMessages();
-  renderTeachers();
+  renderFeeTable();
+  renderExams();
+  renderBooks();
+  renderAttLog();
+  fillStuForms();
 });
 
 /* ============ QR SCANNER ============ */
@@ -474,6 +480,7 @@ function addLogRow(name, id, seed, status) {
 
 /* ============ QR MODAL ============ */
 function showQR(id, name) {
+  window._qrId = id;
   document.getElementById('qrTitle').textContent = id + ' • ' + name;
   document.getElementById('qrSub').textContent = name + ' ka unique QR Code — attendance scan ke liye';
   document.getElementById('qrImage').src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + id;
@@ -663,7 +670,7 @@ function renderMarksTable() {
   info.style.display = 'block';
   info.innerHTML = '<i class="fa-solid fa-info-circle me-1"></i><b>' + esc(t.type) + '</b> — <b>' + esc(t.subject) + '</b>, Class ' + t.cls + '-' + t.section + ' • ' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + ' • Total: ' + t.totalMarks + ' marks. Jitne marks hue hain unhe niche enter karein.';
 
-  const students = DEMO_STUDENTS.filter(s => s.cls === t.cls && s.section === t.section);
+  const students = DEMO_STUDENTS.filter(s => s.cls === t.cls && s.stream !== 'madarsa' && (!s.section || s.section === t.section));
   tbody.innerHTML = '';
   students.forEach(s => {
     const r = mks.find(m => m.testId === t.id && m.studentId === s.id);
@@ -733,18 +740,18 @@ function renderAdmissions() {
             '<span class="badge-soft bg-soft-info">' + esc(a.appId) + '</span>' +
           '</div>' +
           '<div class="small muted mt-1" style="line-height:1.8;">' +
-            'Father: <b>' + esc(a.fatherName) + '</b> • Phone: <b>' + esc(a.phone) + '</b> • Class: <b>' + a.cls + '-' + a.section + '</b><br/>' +
-            esc(a.address || '') + (a.email ? ' • ' + esc(a.email) : '') + '<br/>' +
+            'Father: <b>' + esc(a.fatherName) + '</b> • Phone: <b>' + esc(a.phone) + '</b> • Class: <b>' + clsLabel(a) + '</b><br/>' +
+            esc(a.address || '') + ' • ' + esc(a.stream || 'school') + '<br/>' +
             'Submitted: ' + a.date +
           '</div>' +
-          '<div class="mt-1 row g-2">' +
+          '<div class="mt-1 row g-2">' + (approved ? '' : '<div class="col-md-3"><label class="form-label-sm">Mahana Fee (Rs.) — aap tay karein</label><input type="number" class="form-control form-control-sm" id="fee_' + a.appId + '" placeholder="e.g. 2500"/></div>') +
             '<div class="col-md-2"><label class="form-label-sm">Auto Student ID</label><input class="form-control form-control-sm" readonly value="' + esc(a.studentId) + '" onclick="this.select()"/></div>' +
             '<div class="col-md-2"><label class="form-label-sm">Login Password</label><input class="form-control form-control-sm" readonly value="' + esc(a.password) + '" onclick="this.select()"/></div>' +
           '</div>' +
         '</div>' +
         '<div class="d-flex gap-2">' +
 (approved
-            ? '<button class="btn-sm grad-btn" onclick="window.open(\'index.html\',\'_blank\')"><i class="fa-solid fa-eye me-1"></i> Student ko btayen: apni ID/Password se login karein</button>'
+            ? '<a class="btn-sm grad-btn text-decoration-none" target="_blank" href="' + waLink(a.phone, 'Admission approve! ID: ' + a.studentId + ' Password: ' + a.password) + '"><i class="fa-brands fa-whatsapp me-1"></i> WhatsApp par bhejein</a>'
             : '<button class="btn-sm grad-btn" onclick="approveAd(\'' + a.appId + '\',this)"><i class="fa-solid fa-check me-1"></i> Approve</button>' +
               '<button class="btn-sm btn-soft-danger" onclick="rejectAd(\'' + a.appId + '\')"><i class="fa-solid fa-xmark me-1"></i> Reject</button>') +
         '</div>' +
@@ -754,7 +761,9 @@ function renderAdmissions() {
 }
 
 function approveAd(appId, btn) {
-  const ad = approveAdmission(appId);
+  const fee = +(document.getElementById('fee_' + appId) || {}).value;
+  if (!fee) { toast('error', 'Fee likhein', 'Approve se pehle mahana fee enter karein'); return; }
+  const ad = approveAdmission(appId, fee);
   if (!ad) return;
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Approved'; }
   renderAdmissions();

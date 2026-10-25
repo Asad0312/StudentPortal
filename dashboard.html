@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>StudentHub — Dashboard</title>
+<title>IRAA — Dashboard</title>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 <link rel="stylesheet" href="assets/css/style.css" />
@@ -16,10 +17,10 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <div class="side-head">
-      <div class="brand-logo"><i class="fa-solid fa-school"></i></div>
+      <div class="brand-logo" style="background:none;box-shadow:none;padding:0;overflow:hidden;"><img src="assets/logo.svg" alt="IRAA" style="width:100%;height:100%;display:block;"></div>
       <div>
-        <div class="brand-name">StudentHub</div>
-        <div class="brand-sub">School Management</div>
+        <div class="brand-name">IRAA</div>
+        <div class="brand-sub" style="font-size:10.5px;">Iqra Riffat ull Atfal Academy</div>
       </div>
     </div>
 
@@ -34,6 +35,8 @@
 
       <div class="nav-section-title">Academics</div>
       <a class="nav-link-item" data-view="tests"><i class="fa-solid fa-list-check"></i> Test Plan</a>
+      <a class="nav-link-item" data-view="exams"><i class="fa-solid fa-file-pen"></i> Exams &amp; Exam Fee</a>
+      <a class="nav-link-item" data-view="books"><i class="fa-solid fa-book"></i> Books</a>
       <a class="nav-link-item" data-view="marks"><i class="fa-solid fa-square-poll-vertical"></i> Marks</a>
       <a class="nav-link-item" data-view="admissions"><i class="fa-solid fa-book-open"></i> Admissions
         <span class="nav-badge nav-badge-pulse" id="admissionBadge" style="display:none;">0</span></a>
@@ -41,8 +44,6 @@
       <div class="nav-section-title">Communication</div>
       <a class="nav-link-item" data-view="messages"><i class="fa-solid fa-envelope"></i> Messages
         <span class="nav-badge" id="msgNavBadge" style="display:none;">0</span></a>
-      <a class="nav-link-item" data-view="teachers"><i class="fa-solid fa-chalkboard-user"></i> Teachers</a>
-      <a class="nav-link-item" data-view="users"><i class="fa-solid fa-user-gear"></i> Manage Users</a>
 
       <div class="nav-section-title">Insights</div>
       <a class="nav-link-item" data-view="profile"><i class="fa-solid fa-id-card"></i> Student Profile</a>
@@ -55,6 +56,7 @@
         <i class="fa-solid fa-rotate"></i>
         Backup: 15-Sep-2026 &nbsp;•&nbsp; <i class="fa-regular fa-circle-check"></i> Synced
       </div>
+      <button class="btn-ghost w-100 mt-3" onclick="logout()" style="color:#fff;border-color:rgba(255,255,255,.35);"><i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Logout</button>
     </div>
   </aside>
   <div class="side-overlay" id="overlay" onclick="toggleSidebar(false)"></div>
@@ -274,8 +276,8 @@
               </div>
 
               <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
-                <button class="btn-grad" onclick="startScan(this)"><i class="fa-solid fa-video me-1"></i> Start Scanner</button>
-                <button class="btn-ghost" onclick="simulateScan()"><i class="fa-solid fa-mobile-screen me-1"></i> Simulate Scan (Demo)</button>
+                <button class="btn-grad" onclick="startCamScan(this)"><i class="fa-solid fa-video me-1"></i> Start Scanner</button>
+                <div class="input-group" style="max-width:330px;"><input id="manualId" class="form-control" placeholder="ID likhein: STU-1001" onkeydown="if(event.key==='Enter')manualScan()"/><button class="btn-grad" style="padding:8px 18px;" onclick="manualScan()">Mark</button></div>
               </div>
 
               <div class="d-flex justify-content-center gap-3 flex-wrap" style="font-size:12.5px;color:var(--text-muted);">
@@ -319,133 +321,51 @@
       <!-- ================= ATTENDANCE VIEW ================= -->
       <section class="view" id="view-attendance">
         <div class="d-flex flex-wrap gap-2 mb-3 anim-fade-up">
-          <button class="btn-ghost"><i class="fa-regular fa-calendar me-1"></i> 16 Sep 2026</button>
-          <button class="filter-chip active">Daily</button>
-          <button class="filter-chip">Monthly</button>
-          <button class="filter-chip">Class Wise</button>
+          <button class="filter-chip active" data-am="daily" onclick="attMode('daily')">Daily</button>
+          <button class="filter-chip" data-am="monthly" onclick="attMode('monthly')">Monthly</button>
+          <button class="filter-chip" data-am="class" onclick="attMode('class')">Class Wise</button>
         </div>
-
-        <div class="row g-3 mb-4">
-          <div class="col-lg-3 col-md-6 anim-fade-up">
-            <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
-              <div class="stat-icon bg-soft-primary" style="color:var(--primary-dark);"><i class="fa-solid fa-book-open"></i></div>
-              <div><div class="stat-value" style="font-size:22px;">24</div><div class="stat-label">Total School Days</div></div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6 anim-fade-up d2">
-            <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
-              <div class="stat-icon" style="background:var(--success-light);color:#047857;"><i class="fa-solid fa-user-check"></i></div>
-              <div><div class="stat-value" style="font-size:22px;">21</div><div class="stat-label">Present</div></div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6 anim-fade-up d3">
-            <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
-              <div class="stat-icon" style="background:var(--danger-light);color:#be123c;"><i class="fa-solid fa-user-xmark"></i></div>
-              <div><div class="stat-value" style="font-size:22px;">3</div><div class="stat-label">Absent</div></div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6 anim-fade-up d4">
-            <div class="card card-soft p-3 d-flex flex-row align-items-center gap-3">
-              <div class="stat-icon bg-grad-success"><i class="fa-solid fa-chart-simple"></i></div>
-              <div><div class="stat-value" style="font-size:22px;">87.5%</div><div class="stat-label">Attendance Rate</div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row g-3">
-          <div class="col-lg-7 anim-fade-up d2">
-            <div class="card card-soft p-3 mb-3">
-              <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                  <thead><tr><th>Student</th><th>Class</th><th>Check-in</th><th>Status</th></tr></thead>
-                  <tbody>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><b>Asad Javed</b></div></td><td>Class 6-A</td><td>08:05 AM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><b>Ali Ahmed</b></div></td><td>Class 5-B</td><td>07:45 AM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><b>Bilal Ahmed</b></div></td><td>Class 6-A</td><td>07:30 AM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><b>Fatima Noor</b></div></td><td>Class 1-C</td><td>07:15 AM</td><td><span class="badge-soft bg-soft-success"><i class="fa-solid fa-check me-1"></i>Present</span></td></tr>
-                    <tr><td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/><b>Hamza Khan</b></div></td><td>Class 8-A</td><td>—</td><td><span class="badge-soft bg-soft-danger"><i class="fa-solid fa-xmark me-1"></i>Absent</span></td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-5 anim-fade-up d3">
-            <div class="card card-soft p-3">
-              <h5 class="section-title mb-3">Monthly Report — <span id="attStuName">Asad Javed</span></h5>
-              <div class="d-flex flex-column gap-3">
-                <div>
-                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Attendance Record</span><b class="fs-6" id="attRecPct">87.5%</b></div>
-                  <div class="progress-soft"><div class="progress-bar bg-grad-success" id="attRecBar" style="width:87.5%;"></div></div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Attendance (Sept)</span><b class="fs-6" id="attSepPct">92%</b></div>
-                  <div class="progress-soft"><div class="progress-bar bg-grad-primary" id="attSepBar" style="width:92%;"></div></div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1"><span class="muted" style="font-size:13px;">Overall (2026)</span><b class="fs-6" id="attOvrPct">87.5%</b></div>
-                  <div class="progress-soft"><div class="progress-bar bg-grad-info" id="attOvrBar" style="width:87.5%;"></div></div>
-                </div>
-                <div class="d-flex gap-2 mt-2 flex-wrap">
-                  <button class="btn-ghost flex-grow-1"><i class="fa-solid fa-print me-1"></i> Print Report</button>
-                  <button class="btn-grad flex-grow-1"><i class="fa-solid fa-file-export me-1"></i> Export</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="card card-soft p-3 mt-3 hollow-card text-center">
-              <i class="fa-solid fa-database mb-2" style="font-size:22px;color:var(--text-muted);"></i>
-              <p class="mb-0" style="font-size:13px;color:var(--text-muted);">Attendance records <b>students</b> table se aayengi —
-              <span class="fw-600" style="color:var(--primary-dark);">Laravel + MySQL</span> backend setup ke baad.</p>
-            </div>
-          </div>
-        </div>
+        <div class="card card-soft p-3 mb-3"><div class="row g-2">
+          <div class="col-6 col-md-3" id="attDayBox"><label class="form-label small">Date</label><input type="date" class="form-control" id="attDate" onchange="renderAttendance()"/></div>
+          <div class="col-6 col-md-3" id="attMonBox" style="display:none;"><label class="form-label small">Month</label><input type="month" class="form-control" id="attMonth" onchange="renderAttendance()"/></div>
+          <div class="col-6 col-md-3"><label class="form-label small">Type</label><select class="form-select" id="attType" onchange="renderAttendance()"><option value="">Sab</option><option value="school">School</option><option value="madarsa">Madarsa</option></select></div>
+          <div class="col-6 col-md-3" id="attClsBox"><label class="form-label small">Class / Section</label><select class="form-select" id="attCls" onchange="renderAttendance()"><option value="">Sab</option><option value="C1">Class 1</option><option value="C2">Class 2</option><option value="C3">Class 3</option><option value="C4">Class 4</option><option value="C5">Class 5</option><option value="C6">Class 6</option><option value="C7">Class 7</option><option value="C8">Class 8</option><option value="MA">Madarsa A</option><option value="MB">Madarsa B</option><option value="MC">Madarsa C</option><option value="MD">Madarsa D</option></select></div>
+          <div class="col-12 col-md-3"><label class="form-label small">Dhundhein</label><input class="form-control" id="attQ" placeholder="Naam ya ID" oninput="renderAttendance()"/></div>
+        </div></div>
+        <div class="row g-3 mb-3" id="attStats"></div>
+        <div class="card card-soft p-3"><div class="table-responsive"><table class="table align-middle mb-0"><thead id="attHead"></thead><tbody id="attBody"></tbody></table></div></div>
       </section>
 
       <!-- ================= FEES VIEW ================= -->
       <section class="view" id="view-fees">
+        
+        <div class="card card-soft p-3 mb-3 anim-fade-up"><h5 class="section-title mb-3"><i class="fa-solid fa-bolt me-2 text-warning"></i>Jaldi Fee Jama karein — Student ID likhein</h5>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3"><label class="form-label small">Student ID</label><input class="form-control" id="qfId" placeholder="STU-1001" onkeydown="if(event.key==='Enter')feeLookup()"/></div>
+            <div class="col-md-2"><button class="btn-ghost w-100" onclick="feeLookup()"><i class="fa-solid fa-magnifying-glass me-1"></i>Dhundhein</button></div>
+            <div class="col-md-7"><div id="qfInfo" class="muted small">ID likh kar Enter dabayen</div></div>
+          </div>
+          <div class="row g-2 mt-1" id="qfPay" style="display:none;">
+            <div class="col-md-3"><label class="form-label small">Fee jama (Rs.)</label><input type="number" class="form-control" id="qfAmt"/></div>
+            <div class="col-md-5" id="qfFineBox"><label class="form-label small">Late fine (15 tarik ke baad) — lagana ya na lagana aap ki marzi</label><div class="input-group"><div class="input-group-text"><input type="checkbox" class="form-check-input mt-0" id="qfFineOn"/></div><input type="number" class="form-control" id="qfFine" placeholder="Fine Rs."/></div></div>
+            <div class="col-md-4 d-flex align-items-end"><button class="btn-grad w-100" onclick="feePay()"><i class="fa-solid fa-check me-1"></i>Paid Karein</button></div>
+          </div></div>
         <div class="row g-3 mb-4">
           <div class="col-lg-8 anim-fade-up">
             <div class="card card-soft p-3 h-100">
               <div class="d-flex justify-content-between align-items-center px-2 pt-2 mb-2 flex-wrap gap-2">
-                <h5 class="section-title">Fee Records — September 2026</h5>
-                <button class="btn-grad" style="padding:8px 16px;font-size:13px;" data-bs-toggle="modal" data-bs-target="#addPaymentModal"><i class="fa-solid fa-plus me-1"></i> Add Payment</button>
+                <h5 class="section-title"><span id="feeTitle">Fee Records</span></h5>
+                <button class="btn-grad" style="padding:8px 16px;font-size:13px;" onclick="document.getElementById('qfId').focus()"><i class="fa-solid fa-plus me-1"></i> Add Payment</button>
+              </div>
+              <div class="row g-2 px-2 mb-3">
+                <div class="col-md-5"><input class="form-control" id="fSearch" placeholder="Naam ya ID se dhundhein" oninput="renderFeeTable()"/></div>
+                <div class="col-md-3"><select class="form-select" id="fStatus" onchange="renderFeeTable()"><option value="">Sab status</option><option>Paid</option><option>Pending</option><option>Unpaid</option><option value="Late">Late (15 ke baad)</option></select></div>
+                <div class="col-md-4"><select class="form-select" id="fClass" onchange="renderFeeTable()"><option value="">Sab classes</option><option value="M">Madarsa</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
               </div>
               <div class="table-responsive">
                 <table class="table align-middle mb-0">
                   <thead><tr><th>Student</th><th>Class</th><th>Monthly Fee</th><th>Paid</th><th>Remaining</th><th>Status</th><th></th></tr></thead>
-                  <tbody>
-                    <tr>
-                      <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Asad" alt=""/><b>Asad Javed</b></div></td>
-                      <td>Class 6-A</td><td class="fw-600">Rs. 2,500</td><td class="text-success fw-600">Rs. 2,500</td><td class="fw-600">Rs. 0</td>
-                      <td><span class="badge-soft bg-soft-success">Paid</span></td>
-                      <td><button class="mini-btn btn-icon-accent"><i class="fa-solid fa-receipt"></i></button></td>
-                    </tr>
-                    <tr>
-                      <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Ali" alt=""/><b>Ali Ahmed</b></div></td>
-                      <td>Class 5-B</td><td class="fw-600">Rs. 2,500</td><td class="text-success fw-600">Rs. 2,500</td><td class="fw-600">Rs. 0</td>
-                      <td><span class="badge-soft bg-soft-success">Paid</span></td>
-                      <td><button class="mini-btn btn-icon-accent"><i class="fa-solid fa-receipt"></i></button></td>
-                    </tr>
-                    <tr>
-                      <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Bilal" alt=""/><b>Bilal Ahmed</b></div></td>
-                      <td>Class 6-A</td><td class="fw-600">Rs. 2,500</td><td class="text-success fw-600">Rs. 2,500</td><td class="fw-600">Rs. 0</td>
-                      <td><span class="badge-soft bg-soft-success">Paid</span></td>
-                      <td><button class="mini-btn btn-icon-accent"><i class="fa-solid fa-receipt"></i></button></td>
-                    </tr>
-                    <tr>
-                      <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Fatima" alt=""/><b>Fatima Noor</b></div></td>
-                      <td>Class 1-C</td><td class="fw-600">Rs. 2,000</td><td class="text-success fw-600">Rs. 1,000</td><td class="fw-600 text-danger">Rs. 1,000</td>
-                      <td><span class="badge-soft bg-soft-warning">Pending</span></td>
-                      <td><button class="mini-btn btn-icon-success" title="Add Payment"><i class="fa-solid fa-money-bill-wave"></i></button></td>
-                    </tr>
-                    <tr>
-                      <td><div class="stu-cell"><img class="avatar-sm" src="https://api.dicebear.com/8.x/initials/svg?seed=Hamza" alt=""/><b>Hamza Khan</b></div></td>
-                      <td>Class 8-A</td><td class="fw-600">Rs. 3,000</td><td class="text-success fw-600">Rs. 0</td><td class="fw-600 text-danger">Rs. 3,000</td>
-                      <td><span class="badge-soft bg-soft-danger">Unpaid</span></td>
-                      <td><button class="mini-btn btn-icon-success" title="Add Payment"><i class="fa-solid fa-money-bill-wave"></i></button></td>
-                    </tr>
-                  </tbody>
+                  <tbody id="feeBody"></tbody>
                 </table>
               </div>
             </div>
@@ -455,18 +375,18 @@
             <div class="card card-soft p-3 mb-3">
               <h5 class="section-title mb-3">Payment Summary</h5>
               <div class="fee-slip bg-soft-primary rounded-3 p-3 mb-3">
-                <div class="muted" style="font-size:12px;">Total Received (Sept)</div>
-                <div class="fw-bold fs-5">Rs. 450,000</div>
+                <div class="muted" style="font-size:12px;">Total Received (is month)</div>
+                <div class="fw-bold fs-5" id="sumRecv">—</div>
               </div>
               <div class="fee-slip bg-soft-warning rounded-3 p-3 mb-3" style="border-color:var(--warning);">
                 <div class="muted" style="font-size:12px;">Pending Fees</div>
-                <div class="fw-bold fs-5 text-warning">Rs. 85,000</div>
+                <div class="fw-bold fs-5 text-warning" id="sumPend">—</div>
               </div>
               <div class="d-flex align-items-center justify-content-between">
                 <span class="muted" style="font-size:12.5px;">Collection Rate</span>
-                <b>84%</b>
+                <b id="sumRate">0%</b>
               </div>
-              <div class="progress-soft mt-1"><div class="progress-bar bg-grad-success" style="width:84%;"></div></div>
+              <div class="progress-soft mt-1"><div class="progress-bar bg-grad-success" id="sumBar" style="width:0%;"></div></div>
             </div>
 
             <div class="card card-soft p-3">
@@ -521,7 +441,7 @@
               </div>
             </div>
             <div class="d-flex gap-2 justify-content-center mt-3">
-              <button class="btn-grad" onclick="printQR()"><i class="fa-solid fa-download me-1"></i> Download ID Card</button>
+              <button class="btn-grad" onclick="printQR()"><i class="fa-solid fa-download me-1"></i> Print ID Card</button>
               <button class="btn-ghost" onclick="showQR(selStudent().id, selStudent().name)"><i class="fa-solid fa-qrcode me-1"></i> View QR</button>
             </div>
           </div>
@@ -833,11 +753,12 @@
           <span class="muted" style="font-size:13px;">Online form se aate hain — ID &amp; password auto-generate hoti hain</span>
         </div>
 
+        <div id="admFormBox"></div>
         <div id="admissionsList"></div>
         <div id="admissionsEmpty" class="card card-soft p-4 text-center muted">
           <i class="fa-solid fa-inbox fa-2x mb-2" style="color:#c4c9d8;"></i>
           <div>Abhi koi admission request nahi aayi.</div>
-          <div class="small">Students <a href="admission.html" style="color:var(--primary-dark);text-decoration:none;"><b>admission.html</b></a> se form bhar ke bhejte hain — yehi list mein aata hai.</div>
+          <div class="small">Naya admission upar wale form se karein.</div>
         </div>
       </section>
 
@@ -856,7 +777,6 @@
                 <label class="form-label-sm">Send To</label>
                 <select id="msgToRole" class="form-select form-select-sm">
                   <option value="both">Teachers &amp; Students (dono)</option>
-                  <option value="teachers">Sirf Teachers</option>
                   <option value="students">Sirf Students</option>
                 </select>
               </div>
@@ -977,6 +897,31 @@
         </div>
       </section>
 
+
+      <section class="view" id="view-exams">
+        <div class="card card-soft p-3 mb-3"><h5 class="section-title mb-3">Exam Announce karein (fee alag se)</h5>
+          <div class="row g-2">
+            <div class="col-md-2"><label class="form-label small">Month</label><input type="month" class="form-control" id="exMonth"/></div>
+            <div class="col-md-2"><label class="form-label small">Exam naam</label><input class="form-control" id="exTitle" placeholder="e.g. Half Yearly"/></div>
+            <div class="col-md-2"><label class="form-label small">Exam Fee (Rs.)</label><input type="number" class="form-control" id="exFee"/></div>
+            <div class="col-md-2"><label class="form-label small">Class</label><select class="form-select" id="exClass"><option value="all">All</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+            <div class="col-md-2"><label class="form-label small">Kis ke liye</label><select class="form-select" id="exStream"><option value="all">School + Madarsa</option><option value="school">Sirf School</option><option value="madarsa">Sirf Madarsa</option></select></div>
+            <div class="col-md-2 d-flex align-items-end"><button class="btn-grad w-100" onclick="createExam()"><i class="fa-brands fa-whatsapp me-1"></i> Announce</button></div>
+          </div></div>
+        <div class="card card-soft p-3"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Month</th><th>Exam</th><th>Class</th><th>Fee</th><th>Received</th><th></th></tr></thead><tbody id="examBody"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="view-books">
+        <div class="card card-soft p-3 mb-3"><h5 class="section-title mb-3">Books upload karein — class chunte hi us class ki books khud aa jati hain</h5>
+          <div class="row g-2">
+            <div class="col-md-2"><label class="form-label small">Class</label><select class="form-select" id="bkClass" onchange="loadBookTemplate()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+            <div class="col-md-2"><label class="form-label small">Section type</label><select class="form-select" id="bkStream" onchange="bkStreamChanged()"><option value="school">School</option><option value="madarsa">Madarsa</option></select></div>
+            <div class="col-md-4"><label class="form-label small">Book ka naam</label><input class="form-control" id="bkTitle"/></div>
+            <div class="col-md-2"><label class="form-label small">Qeemat (Rs.)</label><input type="number" class="form-control" id="bkPrice"/></div>
+            <div class="col-md-2 d-flex align-items-end"><button class="btn-grad w-100" onclick="addBook()"><i class="fa-solid fa-plus me-1"></i> Add</button></div>
+          </div><div id="bkDraft" class="mt-3"></div></div>
+        <div id="booksList"></div>
+      </section>
     </div><!-- /content -->
   </div><!-- /main-area -->
 </div><!-- /app-shell -->
@@ -992,23 +937,7 @@
       </div>
       <div class="modal-body p-4">
         <div class="badge bg-soft-info mb-3 anim-pop"><i class="fa-solid fa-id-badge me-1"></i>Auto Student ID: <b id="newStuId">STU-1011</b> • QR Code bhi auto generate hoga</div>
-        <div class="row g-3">
-          <div class="col-md-6"><label class="form-label small">Full Name</label><input class="form-control" id="nsName" placeholder="e.g. Usman Ali" /></div>
-          <div class="col-md-6"><label class="form-label small">Father Name</label><input class="form-control" id="nsFather" placeholder="e.g. Muhammad Ali" /></div>
-          <div class="col-md-4"><label class="form-label small">Class (1-8)</label>
-            <select class="form-select" id="nsClass">
-              <option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option>
-              <option value="4">Class 4</option><option value="5">Class 5</option><option value="6" selected>Class 6</option>
-              <option value="7">Class 7</option><option value="8">Class 8</option>
-            </select>
-          </div>
-          <div class="col-md-4"><label class="form-label small">Section</label>
-            <select class="form-select" id="nsSection"><option>A</option><option>B</option><option>C</option></select>
-          </div>
-          <div class="col-md-4"><label class="form-label small">Phone</label><input class="form-control" id="nsPhone" placeholder="03XXXXXXXXX" /></div>
-          <div class="col-md-6"><label class="form-label small">Email</label><input class="form-control" type="email" id="nsEmail" placeholder="student@email.com" /></div>
-          <div class="col-md-6"><label class="form-label small">Address</label><input class="form-control" id="nsAddress" placeholder="City / Area" /></div>
-        </div>
+        <div id="nsFormBox"></div>
       </div>
       <div class="modal-footer" style="border-top:1px solid #eef1f8;">
         <button class="btn-ghost" data-bs-dismiss="modal">Cancel</button>
@@ -1058,7 +987,7 @@
           <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=STU-1001" style="width:100%;height:100%;" alt="QR" />
         </div>
         <p class="muted mt-3 mb-0" style="font-size:12.5px;" id="qrSub">Unique QR Code — scan karein to detect</p>
-        <button class="btn-grad w-100 mt-3" data-bs-dismiss="modal"><i class="fa-solid fa-print me-1"></i> Print / Download</button>
+        <button class="btn-grad w-100 mt-3" onclick="printIdCard(findStudentById(window._qrId))"><i class="fa-solid fa-print me-1"></i> Print ID Card</button>
       </div>
     </div>
   </div>
@@ -1102,6 +1031,8 @@
 <script src="assets/js/students.js"></script>
 <script src="assets/js/teachers.js"></script>
 <script src="assets/js/auth.js"></script>
+<script src="assets/js/school.js"></script>
+
 <script src="assets/js/app.js"></script>
 <script>
   /* ============ ROLE GUARD — sirf Admin ============ */
