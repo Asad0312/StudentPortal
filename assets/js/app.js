@@ -1,4 +1,11 @@
 /* ============ VIEW SWITCHING ============ */
+function logout() {
+  clearSession();
+  clearLoggedStudent();
+  clearLoggedTeacher();
+  window.location.href = 'index.html';
+}
+
 const viewTitles = {
   dashboard: ['Dashboard', 'School overview — Wednesday, 16 September 2026'],
   students: ['Students', 'Class 1 to 8 • manage records'],
@@ -8,6 +15,9 @@ const viewTitles = {
   tests: ['Test Plan', 'Weekly & monthly tests — alert bharday jate hain'],
   marks: ['Marks', 'Test results enter karke students ke paas bhejein'],
   admissions: ['Admissions', 'Online requests — ID & password auto generated'],
+  messages: ['Messages', 'Teachers aur Students dono ko message bhejein'],
+  teachers: ['Teachers', 'School ke sare teachers aur unke subjects'],
+  users: ['Manage Users', 'Kisi bhi teacher ya student ka login add karein'],
   profile: ['Student Profile', 'ID se student search karke dekhein'],
   reports: ['Reports', 'Attendance, fees & backups'],
   portal: ['Student Portal', 'Student ka apna view (preview)']
@@ -32,6 +42,9 @@ function switchView(view) {
   if (view === 'tests') renderTestsTable();
   if (view === 'marks') { fillTestsSelect(true); renderMarksTable(); }
   if (view === 'admissions') renderAdmissions();
+  if (view === 'messages') renderAdminMessages();
+  if (view === 'teachers') renderTeachers();
+  if (view === 'users') { initUserForm(); renderUsers(); }
   updateAdmissionBadge();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -400,6 +413,8 @@ window.addEventListener('load', () => {
   fillTestsSelect(false);
   renderAdmissions();
   updateAdmissionBadge();
+  renderAdminMessages();
+  renderTeachers();
 });
 
 /* ============ QR SCANNER ============ */
@@ -778,4 +793,179 @@ window.addEventListener('storage', e => {
   if (e.key === 'sh_marks') {
     renderTestsTable();
   }
+  if (e.key === 'sh_messages') {
+    renderAdminMessages();
+  }
 });
+
+/* ============ MESSAGES (Admin -> Teachers / Students) ============ */
+function sendAdminMessage() {
+  const toRole = document.getElementById('msgToRole').value;
+  const subject = document.getElementById('msgSubject').value.trim();
+  const body = document.getElementById('msgBody').value.trim();
+
+  if (!subject) { toast('error', 'Subject required', 'Message ka subject likhein'); return; }
+  if (!body) { toast('error', 'Message required', 'Message ka text likhein'); return; }
+
+  sendMessage({ toRole: toRole, toClass: null, subject: subject, body: body });
+
+  document.getElementById('msgSubject').value = '';
+  document.getElementById('msgBody').value = '';
+  renderAdminMessages();
+
+  const label = toRole === 'both' ? 'Teachers & Students' : toRole === 'teachers' ? 'Teachers' : 'Students';
+  toast('success', 'Message Sent', '"' + subject + '" ' + label + ' ko bhej diya gaya.');
+}
+
+const roleLabels = { both: 'Teachers & Students', teachers: 'Teachers', students: 'Students' };
+
+function renderAdminMessages() {
+  const list = document.getElementById('adminMsgList');
+  const empty = document.getElementById('adminMsgEmpty');
+  if (!list) return;
+  const msgs = getMessages();
+  list.innerHTML = '';
+  if (empty) empty.style.display = msgs.length ? 'none' : 'block';
+
+  msgs.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'card card-soft p-3 mb-3';
+    card.innerHTML =
+      '<div class="d-flex flex-wrap align-items-center gap-2 mb-1">' +
+        '<span class="badge-soft ' + (m.toRole === 'students' ? 'bg-soft-info' : m.toRole === 'teachers' ? 'bg-soft-warning' : 'bg-soft-success') + '">' + esc(roleLabels[m.toRole] || m.from) + '</span>' +
+        '<span class="muted ms-auto" style="font-size:11.5px;">' + esc(m.at) + '</span>' +
+      '</div>' +
+      '<b style="font-size:14.5px;">' + esc(m.subject) + '</b>' +
+      '<div class="muted mt-1" style="font-size:13px;line-height:1.6;">' + esc(m.body) + '</div>';
+    list.appendChild(card);
+  });
+  updateMsgNavBadge();
+}
+
+function updateMsgNavBadge() {
+  const b = document.getElementById('msgNavBadge');
+  if (!b) return;
+  const n = getMessages().length;
+  b.style.display = n ? 'inline-block' : 'none';
+  b.textContent = n;
+}
+
+/* ============ TEACHERS LIST ============ */
+function renderTeachers() {
+  const grid = document.getElementById('teachersGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  allTeachers().forEach(t => {
+    grid.insertAdjacentHTML('beforeend',
+      '<div class="col-lg-4 col-md-6 anim-fade-up">' +
+        '<div class="card card-soft p-3 h-100">' +
+          '<div class="d-flex align-items-center gap-3">' +
+            '<img class="avatar" style="width:52px;height:52px;" src="' + t.avatar + '" alt=""/>' +
+            '<div class="flex-grow-1">' +
+              '<b style="font-size:15px;">' + esc(t.name) + '</b><br/>' +
+              '<span class="badge-soft bg-soft-primary mt-1">' + esc(t.subject) + '</span>' +
+            '</div>' +
+            '<span class="badge-soft ' + (t.status === 'Active' ? 'bg-soft-success' : 'bg-soft-danger') + '">' + esc(t.status) + '</span>' +
+          '</div>' +
+          '<div class="mt-3" style="font-size:12.5px;">' +
+            '<div class="d-flex justify-content-between border-bottom py-2" style="border-color:#f1f5f9!important;"><span class="muted">Teacher ID</span><b>' + esc(t.id) + '</b></div>' +
+            '<div class="d-flex justify-content-between border-bottom py-2" style="border-color:#f1f5f9!important;"><span class="muted">Email</span><b>' + esc(t.email) + '</b></div>' +
+            '<div class="d-flex justify-content-between border-bottom py-2" style="border-color:#f1f5f9!important;"><span class="muted">Phone</span><b>' + esc(t.phone) + '</b></div>' +
+            '<div class="d-flex justify-content-between py-2"><span class="muted">Classes</span><b class="text-end" style="max-width:60%;">' + esc(teacherClassesLabel(t)) + '</b></div>' +
+          '</div>' +
+          '<button class="btn-grad btn-sm w-100 mt-2" onclick="messageTeacher(\'' + t.id + '\')"><i class="fa-solid fa-envelope me-1"></i> Message Bhejein</button>' +
+        '</div>' +
+      '</div>');
+  });
+}
+
+function messageTeacher(id) {
+  const t = findTeacherById(id);
+  if (!t) return;
+  switchView('messages');
+  document.getElementById('msgToRole').value = 'teachers';
+  document.getElementById('msgSubject').value = 'Message for ' + t.name;
+  document.getElementById('msgBody').focus();
+}
+
+/* ============ MANAGE USERS ============ */
+function initUserForm() {
+  const cls = document.getElementById('nuClass');
+  const stuCls = document.getElementById('nuStuClass');
+  if (cls && !cls.options.length) {
+    for (let i = 1; i <= 8; i++) cls.insertAdjacentHTML('beforeend', '<option value="' + i + '">Class ' + i + '</option>');
+  }
+  if (stuCls && !stuCls.options.length) {
+    for (let i = 1; i <= 8; i++) stuCls.insertAdjacentHTML('beforeend', '<option value="' + i + '">Class ' + i + '</option>');
+  }
+}
+
+function toggleUserFields() {
+  const isTeacher = document.getElementById('nuRole').value === 'teacher';
+  document.querySelectorAll('.teacher-fields').forEach(el => el.style.display = isTeacher ? '' : 'none');
+  document.querySelectorAll('.student-fields').forEach(el => el.style.display = isTeacher ? 'none' : '');
+}
+
+function createUser() {
+  const role = document.getElementById('nuRole').value;
+  const name = document.getElementById('nuName').value.trim();
+  const email = document.getElementById('nuEmail').value.trim();
+  const password = document.getElementById('nuPassword').value.trim();
+  const phone = document.getElementById('nuPhone').value.trim();
+
+  let data = { role: role, name: name, email: email, password: password, phone: phone };
+  if (role === 'teacher') {
+    data.subject = document.getElementById('nuSubject').value.trim();
+    data.classes = [{ cls: +document.getElementById('nuClass').value, section: document.getElementById('nuSection').value }];
+  } else {
+    data.cls = +document.getElementById('nuStuClass').value;
+    data.section = document.getElementById('nuStuSection').value;
+  }
+
+  const res = addUser(data);
+  if (res.error) { toast('error', 'Could not add', res.error); return; }
+
+  toast('success', 'User Added', res.user.name + ' (' + (role === 'teacher' ? 'Teacher' : 'Student') + ') — login: ' + res.user.email + ' / ' + res.user.password);
+  document.getElementById('nuName').value = '';
+  document.getElementById('nuEmail').value = '';
+  document.getElementById('nuPassword').value = '';
+  document.getElementById('nuPhone').value = '';
+  const sub = document.getElementById('nuSubject'); if (sub) sub.value = '';
+  renderUsers();
+  renderTeachers();
+}
+
+function renderUsers() {
+  const body = document.getElementById('usersBody');
+  if (!body) return;
+  const customIds = getCustomUsers().map(u => u.id);
+  const rows = []
+    .concat([{ name: ADMIN_USER.name + ' (Headmaster)', email: ADMIN_USER.email, role: 'admin', password: ADMIN_USER.password, custom: false, id: ADMIN_USER.id }])
+    .concat(allTeachers().map(t => ({ name: t.name, email: t.email, role: 'teacher', password: t.password, custom: customIds.indexOf(t.id) > -1, id: t.id })))
+    .concat(allStudents().map(s => ({ name: s.name, email: s.email, role: 'student', password: s.password, custom: customIds.indexOf(s.id) > -1, id: s.id })));
+
+  body.innerHTML = '';
+  rows.forEach(r => {
+    const rCls = r.role === 'admin' ? 'bg-soft-danger' : r.role === 'teacher' ? 'bg-soft-warning' : 'bg-soft-info';
+    body.insertAdjacentHTML('beforeend',
+      '<tr>' +
+        '<td class="fw-600">' + esc(r.name) + '</td>' +
+        '<td>' + esc(r.email) + '</td>' +
+        '<td><span class="badge-soft ' + rCls + '">' + esc(r.role) + '</span></td>' +
+        '<td><code>' + esc(r.password) + '</code></td>' +
+        '<td class="text-end">' + (r.custom
+          ? '<button class="mini-btn btn-icon-danger" title="Delete" onclick="removeUser(\'' + r.id + '\')"><i class="fa-solid fa-trash"></i></button>'
+          : '<span class="muted" style="font-size:11.5px;">default</span>') + '</td>' +
+      '</tr>');
+  });
+}
+
+function removeUser(id) {
+  const u = getCustomUsers().find(x => x.id === id);
+  if (!u) return;
+  if (!confirm(u.name + ' ko delete karein? Iska login khatam ho jayega.')) return;
+  deleteUser(id);
+  renderUsers();
+  renderTeachers();
+  toast('info', 'User Deleted', u.name + ' ka account remove kar diya gaya.');
+}

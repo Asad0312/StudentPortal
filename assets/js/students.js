@@ -138,17 +138,22 @@ function clsLabel(s) {
 }
 
 /* ---- Search helpers ---- */
+function allStudentRecords() {
+  return (typeof allStudents === 'function') ? allStudents() : DEMO_STUDENTS;
+}
+
 function findStudentById(q) {
   var term = String(q).trim().toUpperCase();
-  return DEMO_STUDENTS.find(function (s) {
+  return allStudentRecords().find(function (s) {
     return s.id.toUpperCase() === term;
   });
 }
 
 function findStudents(query) {
   var term = String(query).trim().toLowerCase();
-  if (!term) return DEMO_STUDENTS;
-  return DEMO_STUDENTS.filter(function (s) {
+  var list = allStudentRecords();
+  if (!term) return list;
+  return list.filter(function (s) {
     return (s.name.toLowerCase().indexOf(term) > -1) ||
            (s.id.toLowerCase().indexOf(term) > -1) ||
            (clsLabel(s).toLowerCase().indexOf(term) > -1) ||

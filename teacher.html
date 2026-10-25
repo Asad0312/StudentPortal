@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StudentHub — Teacher Panel</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<link rel="stylesheet" href="assets/css/style.css" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-head">
+      <div class="brand-logo"><i class="fa-solid fa-chalkboard-user"></i></div>
+      <div>
+        <div class="brand-name">StudentHub</div>
+        <div class="brand-sub">Teacher Panel</div>
+      </div>
+    </div>
+
+    <nav class="side-nav">
+      <div class="nav-section-title">Main</div>
+      <a class="nav-link-item active" data-view="dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a class="nav-link-item" data-view="upload"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Test</a>
+      <a class="nav-link-item" data-view="mytests"><i class="fa-solid fa-list-check"></i> My Tests</a>
+
+      <div class="nav-section-title">Communication</div>
+      <a class="nav-link-item" data-view="messages"><i class="fa-solid fa-envelope"></i> Messages
+        <span class="nav-badge nav-badge-pulse" id="msgBadge" style="display:none;">0</span></a>
+    </nav>
+
+    <div class="side-foot">
+      <div class="backup-chip">
+        <i class="fa-solid fa-user-tie"></i>
+        <span id="sideTeacherName">Teacher</span>
+      </div>
+    </div>
+  </aside>
+  <div class="side-overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main-area">
+
+    <header class="topbar">
+      <button class="icon-btn menu-toggle" onclick="toggleSidebar(true)"><i class="fa-solid fa-bars"></i></button>
+      <div class="page-title">
+        <h2 id="pageTitle" class="title-underline">Dashboard</h2>
+        <small id="pageSub">Teacher overview</small>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="Logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        <div class="avatar-chip">
+          <img class="avatar" id="topAvatar" src="" alt="teacher" />
+          <div class="d-none d-md-block">
+            <b style="font-size:13.5px;" id="topName">Teacher</b><br />
+            <span class="muted" style="font-size:11.5px;" id="topSubject">Subject</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ================= DASHBOARD VIEW ================= -->
+      <section class="view active" id="view-dashboard">
+        <div class="row g-3 mb-4">
+          <div class="col-lg-4 col-md-6 anim-fade-up">
+            <div class="card card-soft stat-card accent-edge p-3 d-flex flex-row align-items-center gap-3">
+              <div class="stat-icon bg-grad-primary"><i class="fa-solid fa-list-check"></i></div>
+              <div>
+                <div class="stat-value" id="statTests">0</div>
+                <div class="stat-label">Tests Uploaded</div>
+              </div>
+              <div class="stat-corner"><i class="fa-solid fa-list-check"></i></div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 anim-fade-up d2">
+            <div class="card card-soft stat-card accent-edge p-3 d-flex flex-row align-items-center gap-3">
+              <div class="stat-icon bg-grad-info"><i class="fa-solid fa-users"></i></div>
+              <div>
+                <div class="stat-value" id="statClasses">0</div>
+                <div class="stat-label">Assigned Classes</div>
+              </div>
+              <div class="stat-corner"><i class="fa-solid fa-users"></i></div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 anim-fade-up d3">
+            <div class="card card-soft stat-card accent-edge p-3 d-flex flex-row align-items-center gap-3">
+              <div class="stat-icon bg-grad-warning"><i class="fa-solid fa-envelope"></i></div>
+              <div>
+                <div class="stat-value" id="statMsgs">0</div>
+                <div class="stat-label">Messages from Admin</div>
+              </div>
+              <div class="stat-corner"><i class="fa-solid fa-envelope"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-7 anim-fade-up d2">
+            <div class="card card-soft p-3 h-100">
+              <div class="d-flex justify-content-between align-items-center px-2 pt-2 mb-2">
+                <h5 class="section-title mb-0">Recent Tests</h5>
+                <a href="#" class="text-decoration-none" style="font-size:13px;color:var(--primary-dark);" onclick="switchView('mytests');return false;">View all <i class="fa-solid fa-arrow-right fa-xs"></i></a>
+              </div>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead><tr><th>Subject</th><th>Class</th><th>Date</th><th>Marks</th></tr></thead>
+                  <tbody id="dashTestsBody"></tbody>
+                </table>
+              </div>
+              <div id="dashTestsEmpty" class="muted small py-2">Abhi koi test upload nahi kiya.</div>
+            </div>
+          </div>
+          <div class="col-lg-5 anim-fade-up d3">
+            <div class="card card-soft p-3 h-100">
+              <h5 class="section-title px-2 pt-2 mb-2">My Profile</h5>
+              <div class="d-flex align-items-center gap-3 px-2">
+                <img class="avatar" id="dashAvatar" style="width:56px;height:56px;" src="" alt="" />
+                <div>
+                  <b id="dashName">-</b><br />
+                  <span class="muted" style="font-size:12.5px;" id="dashSubject">-</span>
+                </div>
+              </div>
+              <div class="px-2 mt-3" style="font-size:13px;">
+                <div class="d-flex justify-content-between border-bottom py-2" style="border-color:#f1f5f9!important;"><span class="muted">Teacher ID</span><b id="dashId">-</b></div>
+                <div class="d-flex justify-content-between border-bottom py-2" style="border-color:#f1f5f9!important;"><span class="muted">Email</span><b id="dashEmail">-</b></div>
+                <div class="d-flex justify-content-between border-bottom py-2" style="border-color:#f1f5f9!important;"><span class="muted">Phone</span><b id="dashPhone">-</b></div>
+                <div class="d-flex justify-content-between py-2"><span class="muted">Classes</span><b id="dashClasses" class="text-end">-</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= UPLOAD TEST VIEW ================= -->
+      <section class="view" id="view-upload">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h4 class="fw-bold mb-0"><i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>Upload Test</h4>
+          <span class="muted" style="font-size:13px;">Apne subject ka test khud upload karein — students ko foran show hoga</span>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card card-soft p-3">
+              <h6 class="section-title mb-3"><i class="fa-solid fa-calendar-plus me-1"></i> New Test Details</h6>
+              <div class="mb-2">
+                <label class="form-label-sm">Subject (aap ka subject)</label>
+                <input id="uSubject" class="form-control form-control-sm" type="text" readonly />
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label-sm">Class</label>
+                  <select id="uClass" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label-sm">Section</label>
+                  <select id="uSection" class="form-select form-select-sm"></select>
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label-sm">Test Type</label>
+                <div class="d-flex gap-2">
+                  <button class="btn-sm grad-btn flex-fill" id="uTypeWeekly" type="button" data-ut="Weekly">Weekly</button>
+                  <button class="btn-sm grad-btn flex-fill" id="uTypeMonthly" type="button" data-ut="Monthly">Monthly</button>
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label-sm">Date</label>
+                  <input id="uDate" class="form-control form-control-sm" type="date" />
+                </div>
+                <div class="col-6">
+                  <label class="form-label-sm">Time</label>
+                  <input id="uTime" class="form-control form-control-sm" type="time" value="10:00" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label-sm">Total Marks</label>
+                <input id="uTotal" class="form-control form-control-sm" type="number" value="50" min="1" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label-sm">Zaroori Hidayat (optional)</label>
+                <textarea id="uNote" class="form-control form-control-sm" rows="2" placeholder="e.g. Chapter 3 tak pura karke aayen"></textarea>
+              </div>
+              <button class="btn-grad w-100" onclick="uploadTest()"><i class="fa-solid fa-paper-plane me-1"></i> Upload Test &amp; Notify Students</button>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card card-soft p-3">
+              <h6 class="section-title mb-3"><i class="fa-solid fa-circle-info me-1"></i> Kaise kaam karta hai</h6>
+              <div class="timeline">
+                <div class="timeline-item success"><b style="font-size:13.5px;">1. Test upload karein</b><div class="muted" style="font-size:12.5px;">Sirf apne subject aur apni assigned classes ke liye.</div></div>
+                <div class="timeline-item success"><b style="font-size:13.5px;">2. Student ko alert</b><div class="muted" style="font-size:12.5px;">Us class ke har student ke portal par test plan aur alert aa jata hai.</div></div>
+                <div class="timeline-item"><b style="font-size:13.5px;">3. Admin marks enter karega</b><div class="muted" style="font-size:12.5px;">Result bharne ke baad student My Marks mein dekh sakta hai.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= MY TESTS VIEW ================= -->
+      <section class="view" id="view-mytests">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h4 class="fw-bold mb-0"><i class="fa-solid fa-list-check me-2 text-primary"></i>My Tests</h4>
+          <span class="muted" style="font-size:13px;">Aap ke upload kiye hue sare tests</span>
+        </div>
+
+        <div class="card card-soft p-3">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead><tr><th>Type</th><th>Class</th><th>Subject</th><th>Date</th><th>Time</th><th>Marks</th><th class="text-end">Action</th></tr></thead>
+              <tbody id="myTestsBody"></tbody>
+            </table>
+          </div>
+          <div id="myTestsEmpty" class="text-center muted py-3" style="font-size:13px;">Abhi koi test upload nahi kiya.</div>
+        </div>
+      </section>
+
+      <!-- ================= MESSAGES VIEW ================= -->
+      <section class="view" id="view-messages">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h4 class="fw-bold mb-0"><i class="fa-solid fa-envelope me-2 text-primary"></i>Messages from Admin</h4>
+          <span class="muted" style="font-size:13px;">Admin ki taraf se aane wale messages</span>
+        </div>
+        <div id="msgList"></div>
+        <div id="msgEmpty" class="card card-soft p-4 text-center muted">
+          <i class="fa-solid fa-inbox fa-2x mb-2" style="color:#c4c9d8;"></i>Abhi koi message nahi aaya.
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/students.js"></script>
+<script src="assets/js/teachers.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+  /* ============ SESSION ============ */
+  var TEACHER = null;
+
+  function logout() {
+    clearLoggedTeacher();
+    clearSession();
+    window.location.href = 'index.html';
+  }
+
+  function toggleSidebar(open) {
+    document.getElementById('sidebar').classList.toggle('open', open);
+    document.getElementById('overlay').classList.toggle('show', open);
+  }
+
+  var viewTitles = {
+    dashboard: ['Dashboard', 'Aap ke tests aur classes ka overview'],
+    upload: ['Upload Test', 'Apne subject ka test upload karein'],
+    mytests: ['My Tests', 'Aap ke upload kiye hue tests'],
+    messages: ['Messages', 'Admin ki taraf se messages']
+  };
+
+  function switchView(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    var t = document.getElementById('view-' + view);
+    if (t) t.classList.add('active');
+    document.querySelectorAll('.nav-link-item[data-view]').forEach(n => n.classList.toggle('active', n.dataset.view === view));
+    var ti = viewTitles[view];
+    if (ti) { document.getElementById('pageTitle').textContent = ti[0]; document.getElementById('pageSub').textContent = ti[1]; }
+    if (view === 'dashboard') renderDash();
+    if (view === 'mytests') renderMyTests();
+    if (view === 'messages') renderMessages(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('.nav-link-item[data-view]').forEach(item => item.addEventListener('click', () => switchView(item.dataset.view)));
+
+  /* ============ TOAST ============ */
+  function toast(type, title, msg) {
+    var wrap = document.getElementById('toastWrap');
+    var icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+    var el = document.createElement('div');
+    el.className = 'toast-msg ' + type;
+    el.innerHTML = '<div class="toast-ic"><i class="fa-solid ' + icons[type] + '"></i></div>' +
+      '<div class="toast-txt"><b>' + title + '</b><span>' + msg + '</span></div>';
+    wrap.appendChild(el);
+    setTimeout(function () { el.style.opacity = '0'; el.style.transition = '.4s'; setTimeout(function () { el.remove(); }, 400); }, 3200);
+  }
+
+  /* ============ MY TESTS HELPERS ============ */
+  function myTests() {
+    return getTests().filter(function (t) { return t.teacher === TEACHER.id; });
+  }
+
+  /* ============ UPLOAD FORM ============ */
+  var uType = 'Weekly';
+
+  function setUType(t) {
+    uType = t;
+    var w = document.getElementById('uTypeWeekly'), m = document.getElementById('uTypeMonthly');
+    [w, m].forEach(b => b.classList.remove('active'));
+    (t === 'Weekly' ? w : m).classList.add('active');
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ut]');
+    if (b) setUType(b.dataset.ut);
+  });
+
+  function initUploadForm() {
+    document.getElementById('uSubject').value = TEACHER.subject;
+    var clsSel = document.getElementById('uClass');
+    clsSel.innerHTML = '';
+    TEACHER.classes.forEach(function (c) {
+      clsSel.insertAdjacentHTML('beforeend', '<option value="' + c.cls + '">Class ' + c.cls + '</option>');
+    });
+    document.getElementById('uDate').value = new Date().toISOString().slice(0, 10);
+    syncSections();
+    clsSel.addEventListener('change', syncSections);
+    setUType('Weekly');
+  }
+
+  function syncSections() {
+    var cls = +document.getElementById('uClass').value;
+    var secSel = document.getElementById('uSection');
+    var secs = TEACHER.classes.filter(function (c) { return c.cls === cls; }).map(function (c) { return c.section; });
+    secSel.innerHTML = '';
+    secs.forEach(function (s) { secSel.insertAdjacentHTML('beforeend', '<option value="' + s + '">' + s + '</option>'); });
+  }
+
+  function uploadTest() {
+    var cls = +document.getElementById('uClass').value;
+    var section = document.getElementById('uSection').value;
+    var date = document.getElementById('uDate').value;
+    var time = document.getElementById('uTime').value;
+    var totalMarks = +document.getElementById('uTotal').value;
+    var note = document.getElementById('uNote').value.trim();
+
+    if (!date) { toast('error', 'Date required', 'Test ki date select karein'); return; }
+    if (!totalMarks || totalMarks < 1) { toast('error', 'Invalid marks', 'Total marks 1 se zyada hona chahiye'); return; }
+
+    var t = {
+      type: uType,
+      cls: cls,
+      section: section,
+      subject: TEACHER.subject,
+      date: date,
+      time: time,
+      totalMarks: totalMarks,
+      teacher: TEACHER.id,
+      teacherName: TEACHER.name,
+      note: note
+    };
+    addTestRec(t); /* students.js — id + alert auto + save */
+    renderMyTests();
+    renderDash();
+    document.getElementById('uNote').value = '';
+    toast('success', 'Test Uploaded', uType + ' — ' + TEACHER.subject + ' (Class ' + cls + '-' + section + '). Students ko notify kar diya gaya.');
+  }
+
+  function deleteMyTest(id) {
+    if (!confirm('Is test ko delete karein? Students ke portal se bhi hat jayega.')) return;
+    deleteTestRec(id);
+    renderMyTests();
+    renderDash();
+    toast('info', 'Test Deleted', 'Test remove kar diya gaya.');
+  }
+
+  /* ============ RENDER ============ */
+  function renderDash() {
+    var tests = myTests();
+    document.getElementById('statTests').textContent = tests.length;
+    document.getElementById('statClasses').textContent = TEACHER.classes.length;
+    document.getElementById('statMsgs').textContent = messagesForRole('teacher').length;
+
+    var body = document.getElementById('dashTestsBody');
+    var empty = document.getElementById('dashTestsEmpty');
+    body.innerHTML = '';
+    empty.style.display = tests.length ? 'none' : 'block';
+    tests.slice(0, 5).forEach(function (t) {
+      body.insertAdjacentHTML('beforeend',
+        '<tr><td class="fw-600">' + esc(t.subject) + '</td><td>Class ' + t.cls + '-' + t.section + '</td>' +
+        '<td>' + fmtDate(t.date) + '</td><td>' + t.totalMarks + '</td></tr>');
+    });
+  }
+
+  function renderMyTests() {
+    var tests = myTests();
+    var body = document.getElementById('myTestsBody');
+    var empty = document.getElementById('myTestsEmpty');
+    body.innerHTML = '';
+    empty.style.display = tests.length ? 'none' : 'block';
+    tests.forEach(function (t) {
+      body.insertAdjacentHTML('beforeend',
+        '<tr>' +
+          '<td><span class="badge-soft ' + (t.type === 'Monthly' ? 'bg-soft-warning' : 'bg-soft-primary') + '">' + esc(t.type) + '</span></td>' +
+          '<td>Class ' + t.cls + '-' + t.section + '</td>' +
+          '<td class="fw-600">' + esc(t.subject) + '</td>' +
+          '<td>' + fmtDate(t.date) + '</td>' +
+          '<td>' + esc(t.time) + '</td>' +
+          '<td>' + t.totalMarks + '</td>' +
+          '<td class="text-end"><button class="mini-btn btn-icon-danger" title="Delete" onclick="deleteMyTest(\'' + t.id + '\')"><i class="fa-solid fa-trash"></i></button></td>' +
+        '</tr>');
+    });
+  }
+
+  function renderMessages(markSeen) {
+    var list = document.getElementById('msgList');
+    var empty = document.getElementById('msgEmpty');
+    var msgs = messagesForRole('teacher');
+    list.innerHTML = '';
+    empty.style.display = msgs.length ? 'none' : 'block';
+    msgs.forEach(function (m) {
+      var seen = (m.seenBy || []).indexOf(TEACHER.id) > -1;
+      var card = document.createElement('div');
+      card.className = 'card card-soft p-3 mb-3';
+      card.innerHTML =
+        '<div class="d-flex flex-wrap align-items-center gap-2 mb-1">' +
+          '<span class="badge-soft bg-soft-info"><i class="fa-solid fa-user-shield me-1"></i>' + esc(m.from) + '</span>' +
+          (m.toRole === 'both' ? '<span class="badge-soft bg-soft-success">Teachers &amp; Students</span>' : '<span class="badge-soft bg-soft-primary">Teachers</span>') +
+          (seen ? '' : '<span class="badge-soft bg-soft-danger">New</span>') +
+          '<span class="muted ms-auto" style="font-size:11.5px;">' + esc(m.at) + '</span>' +
+        '</div>' +
+        '<b style="font-size:14.5px;">' + esc(m.subject) + '</b>' +
+        '<div class="muted mt-1" style="font-size:13px;line-height:1.6;">' + esc(m.body) + '</div>';
+      list.appendChild(card);
+      if (markSeen) markMessageSeen(m.id, TEACHER.id);
+    });
+    updateMsgBadge();
+  }
+
+  function updateMsgBadge() {
+    var unread = messagesForRole('teacher').filter(function (m) {
+      return (m.seenBy || []).indexOf(TEACHER.id) === -1;
+    }).length;
+    var b = document.getElementById('msgBadge');
+    b.style.display = unread ? 'inline-block' : 'none';
+    b.textContent = unread;
+  }
+
+  /* ============ INIT ============ */
+  (function init() {
+    var session = getSession();
+    if (!session || session.role !== 'teacher') {
+      if (session && session.role === 'admin') { window.location.href = 'dashboard.html'; return; }
+      if (session && session.role === 'student') { window.location.href = 'student-portal.html'; return; }
+      window.location.href = 'index.html';
+      return;
+    }
+    TEACHER = getLoggedTeacher();
+    if (!TEACHER) { window.location.href = 'index.html'; return; }
+    document.title = TEACHER.name + ' — Teacher Panel';
+    document.getElementById('sideTeacherName').textContent = TEACHER.name;
+    document.getElementById('topName').textContent = TEACHER.name;
+    document.getElementById('topSubject').textContent = TEACHER.subject;
+    document.getElementById('topAvatar').src = TEACHER.avatar;
+    document.getElementById('dashAvatar').src = TEACHER.avatar;
+    document.getElementById('dashName').textContent = TEACHER.name;
+    document.getElementById('dashSubject').textContent = TEACHER.subject + ' Teacher';
+    document.getElementById('dashId').textContent = TEACHER.id;
+    document.getElementById('dashEmail').textContent = TEACHER.email;
+    document.getElementById('dashPhone').textContent = TEACHER.phone;
+    document.getElementById('dashClasses').textContent = teacherClassesLabel(TEACHER);
+
+    initUploadForm();
+    renderDash();
+    renderMyTests();
+    updateMsgBadge();
+
+    /* live sync — admin naya message bheje to update */
+    window.addEventListener('storage', function (e) {
+      if (e && (e.key === 'sh_messages' || e.key === 'sh_tests')) {
+        updateMsgBadge();
+        renderDash();
+        renderMyTests();
+        if (document.getElementById('view-messages').classList.contains('active')) renderMessages(false);
+      }
+    });
+  })();
+</script>
+<script src="assets/js/enhance.js"></script>
+</body>
+</html>

@@ -49,24 +49,19 @@
     <!-- Right Login form -->
     <div class="login-form anim-fade-up d2">
       <h3 class="fw-bold mb-1">Welcome back 👋</h3>
-      <p class="muted mb-0" style="font-size:13.5px;">Apni role choose karein aur login karein</p>
+      <p class="muted mb-0" style="font-size:13.5px;">Apna email aur password enter karein — system khud aap ka panel khol dega</p>
 
-      <div class="role-switch">
-        <button type="button" class="active" data-role="admin"><i class="fa-solid fa-user-shield me-1"></i> Admin</button>
-        <button type="button" data-role="student"><i class="fa-solid fa-user-graduate me-1"></i> Student</button>
-      </div>
+      <div class="err-box" id="errBox" style="margin-top:18px;"><i class="fa-solid fa-circle-exclamation me-1"></i><span id="errMsg"></span></div>
 
-      <div class="err-box" id="errBox"><i class="fa-solid fa-circle-exclamation me-1"></i><span id="errMsg"></span></div>
-
-      <!-- ===== ADMIN FORM ===== -->
-      <form id="adminForm" onsubmit="return handleAdminLogin(event)">
+      <!-- ===== UNIFIED LOGIN FORM ===== -->
+      <form id="loginForm" onsubmit="return handleLogin(event)" style="margin-top:18px;">
         <div class="field">
           <i class="fa-solid fa-envelope"></i>
-          <input class="form-ctrl" type="email" id="adminEmail" placeholder="Email address" value="admin@studenthub.com" required />
+          <input class="form-ctrl" type="email" id="loginEmail" placeholder="Email address" autocomplete="username" required />
         </div>
         <div class="field">
           <i class="fa-solid fa-lock"></i>
-          <input class="form-ctrl" type="password" id="adminPass" placeholder="Password" value="admin123" required />
+          <input class="form-ctrl" type="password" id="loginPass" placeholder="Password" autocomplete="current-password" required />
           <button type="button" class="toggle-eye" onclick="togglePass(this)"><i class="fa-regular fa-eye"></i></button>
         </div>
 
@@ -79,35 +74,13 @@
         </div>
 
         <button type="submit" class="btn-primary-grad">
-          <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Admin Login
+          <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Login
         </button>
       </form>
 
-      <!-- ===== STUDENT FORM ===== -->
-      <form id="studentForm" onsubmit="return handleStudentLogin(event)" style="display:none;">
-        <div class="field">
-          <i class="fa-solid fa-user-graduate"></i>
-          <input class="form-ctrl" type="text" id="stuName" placeholder="Student Name e.g. Asad Javed" autocomplete="off" required />
-        </div>
-        <div class="field">
-          <i class="fa-solid fa-lock"></i>
-          <input class="form-ctrl" type="password" id="stuPass" placeholder="Password" required />
-          <button type="button" class="toggle-eye" onclick="togglePass(this)"><i class="fa-regular fa-eye"></i></button>
-        </div>
-
-        <button type="submit" class="btn-primary-grad" style="background:linear-gradient(135deg,#0ea5e9,#0d9488);background-size:150% 150%;">
-          <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Open My Portal
-        </button>
-
-        <div class="demo-hint text-start" style="background:var(--bg-soft);">
-          <b style="color:var(--primary-dark);">⬇ Demo logins — kisi bhi par click karo (auto fill)</b>
-          <div class="demo-students" id="demoList"></div>
-        </div>
-      </form>
-
-      <div class="demo-hint" id="adminHint">
-        <i class="fa-solid fa-circle-info me-1"></i> Admin demo: <code>admin@studenthub.com</code> / <code>admin123</code>
-        <br />Dashboard par login hote hi <b>"Student Portal"</b> section 8 views mein available hai.
+      <div class="demo-hint text-start" style="background:var(--bg-soft);">
+        <b style="color:var(--primary-dark);">⬇ Demo logins — kisi bhi par click karo (auto fill)</b>
+        <div class="demo-students" id="demoList"></div>
       </div>
 
       <div class="text-center mt-3" style="font-size:13px;">
@@ -119,6 +92,8 @@
 </div>
 
 <script src="assets/js/students.js"></script>
+<script src="assets/js/teachers.js"></script>
+<script src="assets/js/auth.js"></script>
 <script>
   function togglePass(btn) {
     const inp = btn.parentElement.querySelector('input');
@@ -150,62 +125,57 @@
     }).then(() => { window.location.href = redirectTo; });
   }
 
-  /* role switch */
-  document.querySelectorAll('.role-switch button').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('.role-switch button').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      document.getElementById('errBox').classList.remove('show');
-      const isStudent = b.dataset.role === 'student';
-      document.getElementById('adminForm').style.display = isStudent ? 'none' : '';
-      document.getElementById('studentForm').style.display = isStudent ? '' : 'none';
-      document.getElementById('adminHint').style.display = isStudent ? 'none' : '';
-    });
-  });
-
-  /* demo student list with click-to-fill */
+  /* demo logins — sab roles ek hi list mein */
   function buildDemoList() {
     const box = document.getElementById('demoList');
     box.innerHTML = '';
-    DEMO_STUDENTS.forEach(s => {
+    const items = [
+      { kind: 'Admin', name: ADMIN_USER.name, email: ADMIN_USER.email, password: ADMIN_USER.password, avatar: ADMIN_USER.avatar },
+      ...DEMO_TEACHERS.map(t => ({ kind: 'Teacher · ' + t.subject, name: t.name, email: t.email, password: t.password, avatar: t.avatar })),
+      ...DEMO_STUDENTS.slice(0, 3).map(s => ({ kind: 'Student', name: s.name, email: s.email, password: s.password, avatar: s.avatar }))
+    ];
+    items.forEach(it => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'demo-stu-btn';
       btn.innerHTML =
-        '<img class="avatar-sm" src="' + s.avatar + '" alt="" />' +
-        '<span><b>' + s.name + '</b><br /><small style="color:var(--text-muted);">Password: ' + s.password + '</small></span>' +
-        '<span class="id-tag">' + s.id + '</span>';
+        '<img class="avatar-sm" src="' + it.avatar + '" alt="" />' +
+        '<span><b>' + it.name + '</b><br /><small style="color:var(--text-muted);">' + it.kind + ' · ' + it.email + '</small></span>' +
+        '<span class="id-tag">' + it.password + '</span>';
       btn.addEventListener('click', () => {
         document.querySelectorAll('.demo-stu-btn').forEach(x => x.classList.remove('selected'));
         btn.classList.add('selected');
-        document.getElementById('stuName').value = s.name;
-        document.getElementById('stuPass').value = s.password;
+        document.getElementById('loginEmail').value = it.email;
+        document.getElementById('loginPass').value = it.password;
       });
       box.appendChild(btn);
     });
   }
   buildDemoList();
 
-  function handleAdminLogin(e) {
+  function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('adminEmail').value.trim();
-    const pass = document.getElementById('adminPass').value;
-    if (email === 'admin@studenthub.com' && pass === 'admin123') {
-      showLoginSuccess('Admin', 'Headmaster', 'dashboard.html');
-    } else {
-      showErr('Invalid admin credentials — demo use karein: admin@studenthub.com / admin123');
-    }
-    return false;
-  }
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPass').value;
+    const auth = authenticate(email, pass);
 
-  function handleStudentLogin(e) {
-    e.preventDefault();
-    const stu = findStudent(document.getElementById('stuName').value, document.getElementById('stuPass').value);
-    if (stu) {
-      setLoggedStudent(stu);
-      showLoginSuccess(stu.name, 'Student', 'student-portal.html');
+    if (!auth) {
+      showErr('Galat email ya password — niche demo login se koi ek click karein');
+      return false;
+    }
+
+    setSession({ role: auth.role, id: auth.user.id, name: auth.user.name });
+
+    if (auth.role === 'admin') {
+      clearLoggedStudent(); clearLoggedTeacher();
+      showLoginSuccess(auth.user.name, 'Admin (Headmaster)', 'dashboard.html');
+    } else if (auth.role === 'teacher') {
+      clearLoggedStudent(); clearLoggedTeacher();
+      setLoggedTeacher(auth.user);
+      showLoginSuccess(auth.user.name, 'Teacher · ' + auth.user.subject, 'teacher.html');
     } else {
-      showErr('Galat name ya password — upar demo login se koi ek click karein');
+      setLoggedStudent(auth.user);
+      showLoginSuccess(auth.user.name, 'Student', 'student-portal.html');
     }
     return false;
   }
