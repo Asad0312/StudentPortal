@@ -302,9 +302,9 @@
 
     // Fee
     const f = s.fee;
-    document.getElementById('pillFee').textContent = f.status;
+    document.getElementById('pillFee').textContent = feeLabel(f.status);
     document.getElementById('pillFee').style.color = '';
-    document.getElementById('feeStatus').textContent = f.status;
+    document.getElementById('feeStatus').textContent = feeLabel(f.status);
     document.getElementById('feeStatus').className = 'stat-value fw-bold fs-6';
     document.getElementById('feeStatus').style.color =
       f.status === 'Paid' ? '#047857' : f.status === 'Pending' ? '#b45309' : '#be123c';
@@ -512,6 +512,7 @@
       return;
     }
     render(student);
+    window.addEventListener('storage', function (e) { if (e.key === 'sh_state' || e.key === 'sh_approved' || e.key === 'sh_att') location.reload(); });
   })();
 </script>
 <script src="assets/js/enhance.js"></script>

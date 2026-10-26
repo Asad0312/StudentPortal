@@ -211,7 +211,7 @@ function renderPortalView(s) {
   if (get('ptCls'))    get('ptCls').textContent = cl + ' • ' + s.batch;
   if (get('ptQR'))     get('ptQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + s.id;
   if (get('ptAtt'))    get('ptAtt').textContent = a.percent + '%';
-  if (get('ptFee'))    get('ptFee').textContent = f.status;
+  if (get('ptFee'))    get('ptFee').textContent = feeLabel(f.status);
   if (get('ptFee'))    get('ptFee').style.color = f.status === 'Paid' ? '#047857' : f.status === 'Pending' ? '#b45309' : '#be123c';
   if (get('ptCourse')) get('ptCourse').textContent = cl;
   if (get('ptFeeAmt')) get('ptFeeAmt').textContent = 'Rs. ' + f.paid.toLocaleString();

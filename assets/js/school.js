@@ -76,59 +76,86 @@ function approveAdmission(appId, fee) {
   return ad;
 }
 
-/* ---------- FEES: search, filter, 15 tarik last date, late fine (admin ki marzi) ---------- */
+/* ---------- FEES: simple aur detail wala layout ---------- */
 function $v(i) { var e = document.getElementById(i); return e ? e.value : ''; }
+function feeLabel(st) { return { Paid: 'Paid', Pending: 'Partial (aadhi)', Unpaid: 'Unpaid' }[st] || st; }
 function feeBadge(f) { return f.status === 'Paid' ? 'bg-soft-success' : f.status === 'Pending' ? 'bg-soft-warning' : 'bg-soft-danger'; }
+var feeTab = '';
+function setFeeTab(v) { feeTab = v; renderFeeTable(); }
+function rs(n) { return 'Rs. ' + (+n || 0).toLocaleString(); }
 function renderFeeTable() {
-  var b = document.getElementById('feeBody'); if (!b) return; b.innerHTML = '';
-  var q = $v('fSearch').trim().toLowerCase(), st = $v('fStatus'), cl = $v('fClass');
-  DEMO_STUDENTS.filter(function (s) {
-    var late = isLate() && s.fee.remaining > 0;
-    return (!q || s.name.toLowerCase().indexOf(q) >= 0 || s.id.toLowerCase().indexOf(q) >= 0) && (!cl || (cl === 'M' ? (s.stream || 'school') !== 'school' : ((s.stream || 'school') !== 'madarsa' && String(s.cls) === cl))) && (!st || (st === 'Late' ? late : s.fee.status === st));
-  }).forEach(function (s) {
-    var f = s.fee, late = isLate() && f.remaining > 0;
-    b.insertAdjacentHTML('beforeend', '<tr><td><div class="stu-cell"><img class="avatar-sm" src="' + s.avatar + '"/><div><b>' + esc(s.name) + '</b><span>' + s.id + '</span></div></div></td><td>' + esc(clsLabel(s)) +
-      '</td><td class="fw-600">Rs. ' + f.monthly.toLocaleString() + '</td><td class="text-success fw-600">Rs. ' + f.paid.toLocaleString() + '</td><td class="fw-600">Rs. ' + f.remaining.toLocaleString() +
-      (f.fineTotal ? '<br><small class="text-danger">+ fine Rs. ' + f.fineTotal + '</small>' : '') + '</td><td><span class="badge-soft ' + feeBadge(f) + '">' + f.status + '</span>' + (late ? ' <span class="badge-soft bg-soft-danger">Late</span>' : '') +
-      '</td><td><button class="mini-btn btn-icon-success" title="Fee jama karein" onclick="recvFee(\'' + s.id + '\')"><i class="fa-solid fa-money-bill-wave"></i></button><button class="mini-btn btn-icon-warning" title="Fee badlein" onclick="editFee(\'' + s.id + '\')"><i class="fa-solid fa-pen"></i></button></td></tr>');
+  var box = document.getElementById('feeBody'); if (!box) return;
+  var q = $v('fSearch').trim().toLowerCase(), cl = $v('fClass');
+  var base = DEMO_STUDENTS.filter(function (s) {
+    var st = s.stream || 'school';
+    return (!q || s.name.toLowerCase().indexOf(q) >= 0 || s.id.toLowerCase().indexOf(q) >= 0) && (!cl || (cl === 'M' ? st !== 'school' : (st !== 'madarsa' && String(s.cls) === cl)));
   });
-  var rec = 0, pen = 0; DEMO_STUDENTS.forEach(function (s) { rec += s.fee.paid; pen += s.fee.remaining; });
-  var set = function (i, t) { var e = document.getElementById(i); if (e) e.textContent = t; };
-  set('sumRecv', 'Rs. ' + rec.toLocaleString()); set('sumPend', 'Rs. ' + pen.toLocaleString());
-  var r = rec + pen ? Math.round(rec * 100 / (rec + pen)) : 0; set('sumRate', r + '%'); var bar = document.getElementById('sumBar'); if (bar) bar.style.width = r + '%';
-  set('feeTitle', 'Fee Records — ' + monthLabel() + ' (last date: 15 tarik)');
+  var late = function (s) { return isLate() && s.fee.remaining > 0; };
+  var tabs = [['', 'Sab', base.length], ['Unpaid', 'Unpaid', base.filter(function (s) { return s.fee.status === 'Unpaid'; }).length], ['Pending', 'Partial', base.filter(function (s) { return s.fee.status === 'Pending'; }).length],
+    ['Paid', 'Paid', base.filter(function (s) { return s.fee.status === 'Paid'; }).length], ['Late', 'Late', base.filter(late).length]];
+  document.getElementById('feeTabs').innerHTML = tabs.map(function (t) { return '<button class="filter-chip' + (feeTab === t[0] ? ' active' : '') + '" onclick="setFeeTab(\'' + t[0] + '\')">' + t[1] + ' <b>' + t[2] + '</b></button>'; }).join('');
+  var list = base.filter(function (s) { return !feeTab || (feeTab === 'Late' ? late(s) : s.fee.status === feeTab); });
+  box.innerHTML = list.length ? list.map(function (s) {
+    var f = s.fee, tot = f.paid + f.remaining, pct = tot ? Math.round(f.paid * 100 / tot) : 0, col = f.status === 'Paid' ? '#10b981' : pct > 0 ? '#f59e0b' : '#ef4444';
+    return '<div class="fee-row"><div class="stu-cell"><img class="avatar-sm" src="' + s.avatar + '"/><div><b>' + esc(s.name) + '</b><span>' + s.id + ' • ' + esc(clsLabel(s)) + '</span></div></div>' +
+      '<div class="fr-fee"><small class="muted">Mahana fee</small><b>' + rs(f.monthly) + '</b></div>' +
+      '<div class="fr-bal"><div class="d-flex justify-content-between small"><span>Jama <b class="text-success">' + rs(f.paid) + '</b></span><span>Baqi <b style="color:' + (f.remaining > 0 ? '#b45309' : '#047857') + '">' + rs(f.remaining) + '</b></span></div>' +
+      '<div style="height:7px;background:#e8f0ef;border-radius:6px;margin-top:6px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:' + col + '"></div></div></div>' +
+      '<div class="fr-act"><span class="badge-soft ' + feeBadge(f) + '">' + feeLabel(f.status) + '</span>' + (late(s) ? ' <span class="badge-soft bg-soft-danger">Late</span>' : '') +
+      '<div class="mt-2 d-flex gap-2">' + (f.remaining > 0 ? '<button class="btn-grad" style="padding:6px 14px;font-size:13px" onclick="recvFee(\'' + s.id + '\')">Fee lein</button>' : '') +
+      '<button class="btn-ghost" style="padding:6px 14px;font-size:13px" onclick="feeDetail(\'' + s.id + '\')">Detail</button></div></div></div>';
+  }).join('') : '<div class="text-center muted py-4">Koi student nahi mila</div>';
+  var rec = 0, bal = 0, fine = 0; DEMO_STUDENTS.forEach(function (s) { rec += s.fee.paid; bal += s.fee.remaining; fine += s.fee.fineTotal || 0; });
+  var r = rec + bal ? Math.round(rec * 100 / (rec + bal)) : 0;
+  document.getElementById('feeStats').innerHTML = attStat('wallet', rs(rec + bal), 'Kul Fee (is mahine)', 'bg-soft-primary') + attStat('circle-check', rs(rec), 'Mil chuki', 'bg-grad-success') + attStat('hourglass-half', rs(bal), 'Baqi (balance)', 'bg-soft-warning') + attStat('chart-pie', r + '%', 'Collection', 'bg-soft-info');
+  document.getElementById('feeTitle').textContent = 'Fee — ' + monthLabel();
+  document.getElementById('feeSub').textContent = 'Last date: 15 ' + monthLabel() + (fine ? ' • Late fine mili: ' + rs(fine) : '');
+}
+function feeDetail(id) {
+  var s = findStudentById(id), f = s.fee, row = function (k, v) { return '<tr><td class="text-muted">' + k + '</td><td class="text-end"><b>' + v + '</b></td></tr>'; };
+  var hist = (s.payments || []).slice(0, 8).map(function (p) { return '<tr><td>' + esc(p.date || '') + '</td><td>' + esc(p.month || '') + '</td><td class="text-end"><b>' + rs(p.amount) + '</b>' + (p.penalty ? '<br><small class="text-danger">+ fine ' + rs(p.penalty) + '</small>' : '') + '</td></tr>'; }).join('');
+  Swal.fire({ title: s.name, width: 520, showCancelButton: true, showDenyButton: true, showConfirmButton: f.remaining > 0, confirmButtonText: 'Fee lein', denyButtonText: 'Mahana fee badlein', cancelButtonText: 'Band karein',
+    html: '<div class="text-muted mb-2">' + s.id + ' • ' + esc(clsLabel(s)) + '</div><table class="table table-sm text-start mb-3">' + row('Mahana fee', rs(f.monthly)) + row('Is mahine jama', rs(f.paid)) + row('Baqi (balance)', rs(f.remaining)) +
+      row('Status', feeLabel(f.status)) + row('Last date', '15 ' + monthLabel()) + row('Late fine lagi', rs(f.fineTotal || 0)) + '</table><div class="text-start fw-600 mb-1">Payment history</div>' +
+      (hist ? '<table class="table table-sm text-start mb-0"><thead><tr><th>Date</th><th>Mahina</th><th class="text-end">Rakam</th></tr></thead><tbody>' + hist + '</tbody></table>' : '<div class="text-muted">Abhi koi payment nahi hui</div>') })
+    .then(function (r) { if (r.isConfirmed) recvFee(id); else if (r.isDenied) editFee(id); });
 }
 function editFee(id) {
   var s = findStudentById(id), v = prompt(s.name + ' ki mahana fee (Rs.):', s.fee.monthly); if (v === null || isNaN(+v)) return;
   var d = +v - s.fee.monthly; s.fee.monthly = +v; s.fee.remaining = Math.max(0, s.fee.remaining + d);
   s.fee.status = s.fee.remaining === 0 && s.fee.monthly > 0 ? 'Paid' : s.fee.paid > 0 ? 'Pending' : 'Unpaid';
-  persist(); renderFeeTable(); toast('success', 'Fee Updated', s.name + ': Rs. ' + s.fee.monthly);
+  persist(); renderFeeTable(); toast('success', 'Fee Updated', s.name + ': ' + rs(s.fee.monthly));
 }
-function recvFee(id) { document.getElementById('qfId').value = id; feeLookup(); document.getElementById('qfId').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+function recvFee(id) { document.getElementById('qfId').value = id; feeLookup(); document.getElementById('qfCard').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+function feeQuick(n) { document.getElementById('qfAmt').value = n; }
 function feeLookup() {
   var s = findStudentById($v('qfId').trim().toUpperCase()), info = document.getElementById('qfInfo'), box = document.getElementById('qfPay');
-  if (!s) { info.innerHTML = '<span class="text-danger">Yeh ID nahi mili</span>'; box.style.display = 'none'; return; }
-  var f = s.fee, late = isLate() && f.remaining > 0;
-  info.innerHTML = '<b>' + esc(s.name) + '</b> • ' + esc(clsLabel(s)) + ' • Mahana: Rs. ' + f.monthly + ' • Baqi: <b>Rs. ' + f.remaining + '</b> • Last date: 15 ' + monthLabel() +
-    (late ? ' <span class="badge-soft bg-soft-danger">Late — 15 guzar chuki</span>' : '');
+  if (!s) { info.innerHTML = '<div class="text-danger mt-2">Yeh ID nahi mili</div>'; box.style.display = 'none'; return; }
+  var f = s.fee, late = isLate() && f.remaining > 0, chip = function (k, v, c) { return '<span class="badge-soft ' + c + '" style="font-size:12.5px">' + k + ': <b>' + v + '</b></span>'; };
+  info.innerHTML = '<div class="d-flex gap-3 align-items-center p-3 rounded-3 mt-3" style="background:#f6faf9"><img class="avatar-sm" style="width:54px;height:54px" src="' + s.avatar + '"/><div><b>' + esc(s.name) + '</b> <span class="muted small">' + s.id + ' • ' + esc(clsLabel(s)) + '</span>' +
+    '<div class="d-flex flex-wrap gap-2 mt-2">' + chip('Mahana', rs(f.monthly), 'bg-soft-info') + chip('Jama', rs(f.paid), 'bg-soft-success') + chip('Baqi', rs(f.remaining), f.remaining > 0 ? 'bg-soft-warning' : 'bg-soft-success') + (late ? '<span class="badge-soft bg-soft-danger">Late — 15 tarik guzar chuki</span>' : '') + '</div></div></div>';
+  if (f.remaining <= 0) { info.innerHTML += '<div class="text-success fw-600 mt-2">Is mahine ki fee poori jama hai ✓</div>'; box.style.display = 'none'; return; }
   box.style.display = ''; document.getElementById('qfAmt').value = f.remaining;
+  document.getElementById('qfHalf').onclick = function () { feeQuick(Math.ceil(f.remaining / 2)); }; document.getElementById('qfFull').onclick = function () { feeQuick(f.remaining); };
   document.getElementById('qfFineBox').style.display = late ? '' : 'none'; document.getElementById('qfFineOn').checked = false; document.getElementById('qfFine').value = loadArr('sh_fine', 0) || '';
 }
 function feePay() {
   var s = findStudentById($v('qfId').trim().toUpperCase()), amt = +$v('qfAmt');
   if (!s || !(amt > 0)) { toast('error', 'Check karein', 'Sahi ID aur amount likhein'); return; }
+  if (amt > s.fee.remaining) { toast('error', 'Amount zyada hai', 'Is student ki baqi fee sirf ' + rs(s.fee.remaining) + ' hai'); return; }
   var f = s.fee, fine = document.getElementById('qfFineOn').checked ? (+$v('qfFine') || 0) : 0;
   if (fine) saveArr('sh_fine', fine);
   f.paid += amt; f.remaining = Math.max(0, f.remaining - amt); f.status = f.remaining === 0 ? 'Paid' : 'Pending'; f.fineTotal = (f.fineTotal || 0) + fine;
   s.payments.unshift({ month: f.month, amount: amt, penalty: fine, date: new Date().toLocaleDateString('en-GB'), method: 'Cash' });
-  persist(); renderFeeTable(); document.getElementById('qfPay').style.display = 'none'; document.getElementById('qfInfo').textContent = 'ID likh kar Enter dabayen'; document.getElementById('qfId').value = '';
+  persist(); renderFeeTable(); document.getElementById('qfPay').style.display = 'none'; document.getElementById('qfInfo').innerHTML = ''; document.getElementById('qfId').value = '';
   notify(s.phone, s.name + ' ki fee Rs. ' + amt + (fine ? ' + late fine Rs. ' + fine : '') + ' jama ho gayi. Baqi: Rs. ' + f.remaining + '.');
-  Swal.fire({ icon: 'success', title: 'Fee Paid ✓', html: '<b>' + esc(s.name) + '</b><br>Rs. ' + amt + (fine ? ' + fine Rs. ' + fine : '') + '<br>Baqi: Rs. ' + f.remaining + '<br><small>Student ke portal mein aa gayi</small>', timer: 2800, showConfirmButton: false });
+  Swal.fire({ icon: 'success', title: 'Fee Jama ✓', html: '<b>' + esc(s.name) + '</b><br>' + rs(amt) + (fine ? ' + fine ' + rs(fine) : '') + '<br>Baqi: ' + rs(f.remaining) + '<br><small>Student ke portal mein aa gayi</small>', timer: 2800, showConfirmButton: false });
 }
 function renderFeeDue(s) {
   var e = document.getElementById('feeDue'); if (!e) return; var f = s.fee, late = isLate(), left = 15 - new Date().getDate();
   var h = '<div class="d-flex flex-wrap gap-2"><span class="badge-soft bg-soft-info"><i class="fa-solid fa-calendar-day me-1"></i>Last date: 15 ' + monthLabel() + '</span>';
   if (f.remaining > 0) h += late ? '<span class="badge-soft bg-soft-danger">Last date guzar chuki — school late fine laga sakta hai</span>' : '<span class="badge-soft bg-soft-warning">' + left + ' din baqi</span>';
+  if (f.remaining > 0 && f.paid > 0) h += '<span class="badge-soft bg-soft-warning">Balance baqi: Rs. ' + f.remaining + ' (Rs. ' + f.paid + ' jama ho chuke)</span>';
   if (f.fineTotal) h += '<span class="badge-soft bg-soft-danger">Late fine lagi: Rs. ' + f.fineTotal + '</span>';
   e.innerHTML = h + '</div>';
 }
