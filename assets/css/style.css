@@ -662,3 +662,18 @@ body.page-enter { animation: pageFade .5s ease; }
   .swal2-popup { width: 92% !important; }
 }
 .table-responsive { -webkit-overflow-scrolling: touch; }
+
+/* ---- Login page: Admin chunne par lamba email layout tora deta tha ---- */
+.login-card > * { min-width: 0; }
+.demo-stu-btn > span:nth-child(2) { min-width: 0; flex: 1 1 auto; overflow-wrap: anywhere; word-break: break-word; }
+.demo-stu-btn .id-tag { flex-shrink: 0; }
+.demo-students { min-width: 0; }
+#roleTabs button { min-width: 0; white-space: nowrap; }
+@media (max-width: 1024px) { .login-card { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 576px) {
+  .login-wrap { padding: 12px; }
+  .login-form { padding: 26px 18px; }
+  .demo-stu-btn { padding: 8px 10px; gap: 8px; }
+  .demo-stu-btn:hover, .demo-stu-btn.selected { transform: none; }
+  #roleTabs button { padding: 10px 6px; font-size: 14px; }
+}
