@@ -358,7 +358,7 @@
   function renderAlerts(s) {
     const list = document.getElementById('alertList');
     const empty = document.getElementById('alertEmpty');
-    const alerts = getAlerts().filter(a => +a.cls === +s.cls && (s.stream === 'madarsa' ? !a.section : (!a.section || !s.section || a.section === s.section))).slice(0, 6);
+    const alerts = getAlerts().filter(a => audience(a, s)).slice(0, 6);
     list.innerHTML = '';
     if (empty) empty.style.display = alerts.length ? 'none' : 'block';
     alerts.forEach(a => {
@@ -375,7 +375,7 @@
   function renderTestPlan(s) {
     const tbody = document.getElementById('testPlanBody');
     const empty = document.getElementById('testPlanEmpty');
-    const tests = getTests().filter(t => +t.cls === +s.cls && (!s.section || t.section === s.section));
+    const tests = getTests().filter(t => audience(t, s));
     tbody.innerHTML = '';
     if (empty) empty.style.display = tests.length ? 'none' : 'block';
     const today = new Date().toISOString().slice(0, 10);
@@ -391,7 +391,7 @@
         '<td class="text-end">' + (done ? '<span class="badge bg-soft-info">Completed</span>' : '<span class="badge bg-soft-warning">Upcoming</span>') + '</td>';
       tbody.appendChild(tr);
     });
-    if (!tests.length) tbody.innerHTML = '<tr><td colspan="7" class="text-center muted py-3">Is class ka koi test schedule nahi hua</td></tr>';
+    if (!tests.length) tbody.innerHTML = '<tr><td colspan="7" class="text-center muted py-3">Abhi aap ke liye koi test schedule nahi hua</td></tr>';
   }
 
   function renderMyMarks(s) {
@@ -422,7 +422,7 @@
     const list = document.getElementById('msgList');
     const empty = document.getElementById('msgEmpty');
     if (!list) return;
-    const msgs = messagesForRole('student', { cls: s.cls, section: s.section });
+    const msgs = getMessages().filter(m => (m.toRole === 'students' || m.toRole === 'both') && (!m.stream || audience(m, s)));
     list.innerHTML = '';
     if (empty) empty.style.display = msgs.length ? 'none' : 'block';
     msgs.forEach(m => {

@@ -421,6 +421,7 @@ window.addEventListener('load', () => {
   renderBooks();
   renderAttLog();
   fillStuForms();
+  initAudienceForms();
 });
 
 /* ============ QR SCANNER ============ */
@@ -519,11 +520,13 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '
 function initTestForm() {
   const sel = document.getElementById('tClass');
   if (sel) {
+    sel.innerHTML = '';
     for (let i = 1; i <= 8; i++) sel.insertAdjacentHTML('beforeend', '<option value="' + i + '">Class ' + i + '</option>');
   }
   const d = document.getElementById('tDate');
   if (d) d.value = new Date().toISOString().slice(0, 10);
   setTestType('Weekly');
+  if (document.getElementById('tType')) streamFields('t');
 }
 
 function setTestType(t) {
@@ -542,8 +545,9 @@ document.addEventListener('click', e => {
 });
 
 function createTest() {
-  const cls = +document.getElementById('tClass').value;
-  const section = document.getElementById('tSection').value;
+  const stream = document.getElementById('tType').value;
+  const cls = stream === 'madarsa' ? 0 : +document.getElementById('tClass').value;
+  const msec = stream === 'school' ? '' : document.getElementById('tMSec').value;
   const subject = document.getElementById('tSubject').value.trim();
   const date = document.getElementById('tDate').value;
   const time = document.getElementById('tTime').value;
@@ -552,25 +556,29 @@ function createTest() {
   if (!subject) { toast('error', 'Subject required', 'Test ka subject/name likhein'); return; }
   if (!date) { toast('error', 'Date required', 'Test ki date select karein'); return; }
   if (!totalMarks || totalMarks < 1) { toast('error', 'Invalid marks', 'Total marks 1 se zyada hona chahiye'); return; }
+  const rec = { type: testType, stream: stream, cls: cls, section: '', msec: msec, subject: subject, date: date, time: time, totalMarks: totalMarks };
 
   if (editingTestId) {
-    const upd = updateTestRec({ id: editingTestId, type: testType, cls: cls, section: section, subject: subject, date: date, time: time, totalMarks: totalMarks });
+    rec.id = editingTestId;
+    const upd = updateTestRec(rec);
     resetTestForm();
     renderTestsTable();
     fillTestsSelect(false);
-    toast('success', 'Test Updated', upd.type + ' — ' + upd.subject + ' (Class ' + upd.cls + '-' + upd.section + '). Students ko update alert bhej diya gaya.');
+    toast('success', 'Test Updated', upd.type + ' - ' + upd.subject + ' (' + tClsText(upd) + '). ' + upd.notified + ' students ko update bhej diya gaya.');
   } else {
-    const t = addTestRec({ type: testType, cls: cls, section: section, subject: subject, date: date, time: time, totalMarks: totalMarks });
+    const t = addTestRec(rec);
     renderTestsTable();
     fillTestsSelect(false);
-    toast('success', 'Test Uploaded', testType + ' — ' + subject + ' (Class ' + cls + '-' + section + '). Alert students ko bhej diya gaya.');
+    toast('success', 'Test Uploaded', testType + ' - ' + subject + ' (' + tClsText(t) + '). ' + t.notified + ' students ko alert bhej diya gaya.');
   }
 }
 
 function resetTestForm() {
   editingTestId = null;
+  document.getElementById('tType').value = 'school';
   document.getElementById('tClass').value = 1;
-  document.getElementById('tSection').value = 'A';
+  document.getElementById('tMSec').value = 'A';
+  streamFields('t');
   document.getElementById('tSubject').value = '';
   document.getElementById('tDate').value = new Date().toISOString().slice(0, 10);
   document.getElementById('tTime').value = '10:00';
@@ -584,8 +592,10 @@ function editTest(id) {
   const t = getTests().find(x => x.id === id);
   if (!t) return;
   editingTestId = t.id;
-  document.getElementById('tClass').value = t.cls;
-  document.getElementById('tSection').value = t.section;
+  document.getElementById('tType').value = t.stream || 'school';
+  if (t.cls) document.getElementById('tClass').value = t.cls;
+  document.getElementById('tMSec').value = t.msec || 'A';
+  streamFields('t');
   document.getElementById('tSubject').value = t.subject;
   document.getElementById('tDate').value = t.date;
   document.getElementById('tTime').value = t.time;
@@ -595,7 +605,7 @@ function editTest(id) {
   if (btn) btn.innerHTML = '<i class="fa-solid fa-pen-to-square me-1"></i> Update Test';
   const form = document.querySelector('#view-tests .card');
   if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  toast('info', 'Editing: ' + t.id, t.type + ' — ' + t.subject + ' (Class ' + t.cls + '-' + t.section + '). Changes karke "Update Test" dabayen.');
+  toast('info', 'Editing: ' + t.id, t.type + ' - ' + t.subject + ' (' + tClsText(t) + '). Changes karke "Update Test" dabayen.');
 }
 
 function renderTestsTable() {
@@ -611,7 +621,7 @@ function renderTestsTable() {
     const tr = document.createElement('tr');
     tr.innerHTML =
       '<td><span class="obj-badge ' + (t.type === 'Weekly' ? 'week' : 'month') + '">' + esc(t.type) + '</span></td>' +
-      '<td><b>Class ' + t.cls + '-' + t.section + '</b></td>' +
+      '<td><b>' + esc(tClsText(t)) + '</b></td>' +
       '<td>' + esc(t.subject) + '</td>' +
       '<td>' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + '</td>' +
       '<td>' + esc(t.time) + '</td>' +
@@ -647,10 +657,10 @@ function fillTestsSelect(keep) {
   const sel = document.getElementById('marksTestSelect');
   if (!sel) return;
   const prev = keep && sel.value ? sel.value : '';
-  const tests = getTests();
+  const tests = getTests().filter(testPassesMk);
   sel.innerHTML = tests.length
     ? '<option value="">Select test...</option>' + tests.map(t =>
-        '<option value="' + t.id + '">' + esc(t.type) + ' — ' + esc(t.subject) + ' (Class ' + t.cls + '-' + t.section + ') • ' + fmtDate(t.date) + '</option>').join('')
+        '<option value="' + t.id + '">' + esc(t.type) + ' — ' + esc(t.subject) + ' (' + tClsText(t) + ') • ' + fmtDate(t.date) + '</option>').join('')
     : '<option value="">Koi test nahi schedule hai</option>';
   if (prev && tests.some(t => t.id === prev)) sel.value = prev;
 }
@@ -668,9 +678,9 @@ function renderMarksTable() {
   }
   const mks = getMarks();
   info.style.display = 'block';
-  info.innerHTML = '<i class="fa-solid fa-info-circle me-1"></i><b>' + esc(t.type) + '</b> — <b>' + esc(t.subject) + '</b>, Class ' + t.cls + '-' + t.section + ' • ' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + ' • Total: ' + t.totalMarks + ' marks. Jitne marks hue hain unhe niche enter karein.';
+  info.innerHTML = '<i class="fa-solid fa-info-circle me-1"></i><b>' + esc(t.type) + '</b> — <b>' + esc(t.subject) + '</b>, ' + tClsText(t) + ' • ' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + ' • Total: ' + t.totalMarks + ' marks. Jitne marks hue hain unhe niche enter karein.';
 
-  const students = DEMO_STUDENTS.filter(s => s.cls === t.cls && s.stream !== 'madarsa' && (!s.section || s.section === t.section));
+  const students = testStudents(t);
   tbody.innerHTML = '';
   students.forEach(s => {
     const r = mks.find(m => m.testId === t.id && m.studentId === s.id);
@@ -688,7 +698,7 @@ function renderMarksTable() {
       '<td class="text-end fw-600" style="color:' + grad + ';">' + (r ? pct + '%' : '—') + '</td>';
     tbody.appendChild(tr);
   });
-  if (!students.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center muted py-3">Is class ka koi student nahi mila.</td></tr>';
+  if (!students.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center muted py-3">Is class/section ka koi student nahi mila.</td></tr>';
 }
 
 function saveMarksEntry() {
@@ -809,21 +819,19 @@ window.addEventListener('storage', e => {
 
 /* ============ MESSAGES (Admin -> Teachers / Students) ============ */
 function sendAdminMessage() {
-  const toRole = document.getElementById('msgToRole').value;
+  const ty = document.getElementById('msgType').value;
   const subject = document.getElementById('msgSubject').value.trim();
   const body = document.getElementById('msgBody').value.trim();
 
   if (!subject) { toast('error', 'Subject required', 'Message ka subject likhein'); return; }
   if (!body) { toast('error', 'Message required', 'Message ka text likhein'); return; }
 
-  sendMessage({ toRole: toRole, toClass: null, subject: subject, body: body });
+  const m = sendMessage({ stream: ty, cls: ty === 'madarsa' ? 'all' : document.getElementById('msgClass').value, msec: ty === 'school' ? 'all' : document.getElementById('msgMSec').value, subject: subject, body: body });
 
   document.getElementById('msgSubject').value = '';
   document.getElementById('msgBody').value = '';
   renderAdminMessages();
-
-  const label = toRole === 'both' ? 'Teachers & Students' : toRole === 'teachers' ? 'Teachers' : 'Students';
-  toast('success', 'Message Sent', '"' + subject + '" ' + label + ' ko bhej diya gaya.');
+  toast('success', 'Message Sent', '"' + subject + '" - ' + audLabel(m) + ' (' + m.notified + ' students ko WhatsApp/SMS).');
 }
 
 const roleLabels = { both: 'Teachers & Students', teachers: 'Teachers', students: 'Students' };
@@ -841,7 +849,7 @@ function renderAdminMessages() {
     card.className = 'card card-soft p-3 mb-3';
     card.innerHTML =
       '<div class="d-flex flex-wrap align-items-center gap-2 mb-1">' +
-        '<span class="badge-soft ' + (m.toRole === 'students' ? 'bg-soft-info' : m.toRole === 'teachers' ? 'bg-soft-warning' : 'bg-soft-success') + '">' + esc(roleLabels[m.toRole] || m.from) + '</span>' +
+        '<span class="badge-soft ' + (m.toRole === 'students' ? 'bg-soft-info' : m.toRole === 'teachers' ? 'bg-soft-warning' : 'bg-soft-success') + '">' + esc(m.stream ? audLabel(m) : (roleLabels[m.toRole] || m.from)) + '</span>' +
         '<span class="muted ms-auto" style="font-size:11.5px;">' + esc(m.at) + '</span>' +
       '</div>' +
       '<b style="font-size:14.5px;">' + esc(m.subject) + '</b>' +

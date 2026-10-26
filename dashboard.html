@@ -617,14 +617,16 @@
             <div class="card card-soft p-3" style="position:sticky;top:10px;">
               <h6 class="section-title mb-3"><i class="fa-solid fa-calendar-plus me-1"></i> Schedule New Test</h6>
               <div class="mb-2">
+                <label class="form-label-sm">Type</label>
+                <select id="tType" class="form-select form-select-sm" onchange="streamFields('t')"><option value="school">School</option><option value="madarsa">Madarsa</option><option value="both">School + Madarsa</option></select>
+              </div>
+              <div class="mb-2" id="tClsBox">
                 <label class="form-label-sm">Class</label>
                 <select id="tClass" class="form-select form-select-sm"></select>
               </div>
-              <div class="mb-2">
-                <label class="form-label-sm">Section</label>
-                <select id="tSection" class="form-select form-select-sm">
-                  <option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                </select>
+              <div class="mb-2" id="tMSecBox" style="display:none;">
+                <label class="form-label-sm">Madarsa Section</label>
+                <select id="tMSec" class="form-select form-select-sm"><option>A</option><option>B</option><option>C</option><option>D</option></select>
               </div>
               <div class="mb-2">
                 <label class="form-label-sm">Subject / Test Name</label>
@@ -687,6 +689,11 @@
         </div>
 
         <div class="card card-soft p-3 mb-3">
+          <div class="row g-2 mb-2">
+            <div class="col-6 col-md-4"><label class="form-label-sm mb-1">Type</label><select id="mkType" class="form-select form-select-sm" onchange="mkFields()"><option value="">Sab</option><option value="school">School</option><option value="madarsa">Madarsa</option></select></div>
+            <div class="col-6 col-md-4" id="mkClsBox" style="display:none;"><label class="form-label-sm mb-1">Class</label><select id="mkClass" class="form-select form-select-sm" onchange="mkRefresh()"><option value="">Sab</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+            <div class="col-6 col-md-4" id="mkSecBox" style="display:none;"><label class="form-label-sm mb-1">Madarsa Section</label><select id="mkSec" class="form-select form-select-sm" onchange="mkRefresh()"><option value="">Sab</option><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+          </div>
           <label class="form-label-sm mb-1">Select Test</label>
           <select id="marksTestSelect" class="form-select form-select-sm" onchange="renderMarksTable()"></select>
           <div id="marksTestInfo" class="mt-2 py-2 px-3 rounded" style="background:var(--bg-soft);font-size:13px;display:none;"></div>
@@ -726,7 +733,7 @@
       <section class="view" id="view-messages">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
           <h4 class="fw-bold mb-0"><i class="fa-solid fa-envelope me-2 text-primary"></i>Messages</h4>
-          <span class="muted" style="font-size:13px;">Teachers aur Students dono ko message bhejein</span>
+          <span class="muted" style="font-size:13px;">School ya Madarsa ya dono ke students ko message bhejein</span>
         </div>
 
         <div class="row g-3">
@@ -734,11 +741,16 @@
             <div class="card card-soft p-3" style="position:sticky;top:10px;">
               <h6 class="section-title mb-3"><i class="fa-solid fa-paper-plane me-1"></i> Compose Message</h6>
               <div class="mb-2">
-                <label class="form-label-sm">Send To</label>
-                <select id="msgToRole" class="form-select form-select-sm">
-                  <option value="both">Teachers &amp; Students (dono)</option>
-                  <option value="students">Sirf Students</option>
-                </select>
+                <label class="form-label-sm">Kis ko bhejna hai</label>
+                <select id="msgType" class="form-select form-select-sm" onchange="streamFields('msg')"><option value="both">School + Madarsa (dono)</option><option value="school">Sirf School walon ko</option><option value="madarsa">Sirf Madarsa walon ko</option></select>
+              </div>
+              <div class="mb-2" id="msgClsBox">
+                <label class="form-label-sm">School ki class</label>
+                <select id="msgClass" class="form-select form-select-sm"><option value="all">Sab classes</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
+              </div>
+              <div class="mb-2" id="msgMSecBox">
+                <label class="form-label-sm">Madarsa ka section</label>
+                <select id="msgMSec" class="form-select form-select-sm"><option value="all">Sab sections</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
               </div>
               <div class="mb-2">
                 <label class="form-label-sm">Subject</label>
@@ -864,8 +876,9 @@
             <div class="col-md-2"><label class="form-label small">Month</label><input type="month" class="form-control" id="exMonth"/></div>
             <div class="col-md-2"><label class="form-label small">Exam naam</label><input class="form-control" id="exTitle" placeholder="e.g. Half Yearly"/></div>
             <div class="col-md-2"><label class="form-label small">Exam Fee (Rs.)</label><input type="number" class="form-control" id="exFee"/></div>
-            <div class="col-md-2"><label class="form-label small">Class</label><select class="form-select" id="exClass"><option value="all">All</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
-            <div class="col-md-2"><label class="form-label small">Kis ke liye</label><select class="form-select" id="exStream"><option value="all">School + Madarsa</option><option value="school">Sirf School</option><option value="madarsa">Sirf Madarsa</option></select></div>
+            <div class="col-md-2"><label class="form-label small">Kis ke liye</label><select class="form-select" id="exType" onchange="streamFields('ex')"><option value="both">School + Madarsa</option><option value="school">School</option><option value="madarsa">Madarsa</option></select></div>
+            <div class="col-md-2" id="exClsBox"><label class="form-label small">Class</label><select class="form-select" id="exClass"><option value="all">Sab classes</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+            <div class="col-md-2" id="exMSecBox"><label class="form-label small">Madarsa Section</label><select class="form-select" id="exMSec"><option value="all">Sab sections</option><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
             <div class="col-md-2 d-flex align-items-end"><button class="btn-grad w-100" onclick="createExam()"><i class="fa-brands fa-whatsapp me-1"></i> Announce</button></div>
           </div></div>
         <div class="card card-soft p-3"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Month</th><th>Exam</th><th>Class</th><th>Fee</th><th>Received</th><th></th></tr></thead><tbody id="examBody"></tbody></table></div></div>

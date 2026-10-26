@@ -113,11 +113,13 @@ function renderFeeTable() {
 }
 function feeDetail(id) {
   var s = findStudentById(id), f = s.fee, row = function (k, v) { return '<tr><td class="text-muted">' + k + '</td><td class="text-end"><b>' + v + '</b></td></tr>'; };
-  var hist = (s.payments || []).slice(0, 8).map(function (p) { return '<tr><td>' + esc(p.date || '') + '</td><td>' + esc(p.month || '') + '</td><td class="text-end"><b>' + rs(p.amount) + '</b>' + (p.penalty ? '<br><small class="text-danger">+ fine ' + rs(p.penalty) + '</small>' : '') + '</td></tr>'; }).join('');
+  var hist = (s.payments || []).slice(0, 10).map(function (p, i) { var cur = p.month === s.fee.month;
+    return '<tr><td>' + esc(p.date || '') + '</td><td>' + esc(p.month || '') + (cur ? '' : '<br><small class="text-muted">purana mahina</small>') + '</td><td class="text-end"><b>' + rs(p.amount) + '</b>' + (p.penalty ? '<br><small class="text-danger">+ fine ' + rs(p.penalty) + '</small>' : '') + (p.edited ? '<br><small class="text-muted">theek kiya gaya</small>' : '') +
+      '</td><td class="text-end" style="white-space:nowrap"><button class="mini-btn btn-icon-warning" title="Amount theek karein" onclick="editPayment(\'' + s.id + '\',' + i + ')"><i class="fa-solid fa-pen"></i></button> <button class="mini-btn btn-icon-danger" title="Payment hatayein" onclick="deletePayment(\'' + s.id + '\',' + i + ')"><i class="fa-solid fa-trash"></i></button></td></tr>'; }).join('');
   Swal.fire({ title: s.name, width: 520, showCancelButton: true, showDenyButton: true, showConfirmButton: f.remaining > 0, confirmButtonText: 'Fee lein', denyButtonText: 'Mahana fee badlein', cancelButtonText: 'Band karein',
     html: '<div class="text-muted mb-2">' + s.id + ' • ' + esc(clsLabel(s)) + '</div><table class="table table-sm text-start mb-3">' + row('Mahana fee', rs(f.monthly)) + row('Is mahine jama', rs(f.paid)) + row('Baqi (balance)', rs(f.remaining)) +
       row('Status', feeLabel(f.status)) + row('Last date', '15 ' + monthLabel()) + row('Late fine lagi', rs(f.fineTotal || 0)) + '</table><div class="text-start fw-600 mb-1">Payment history</div>' +
-      (hist ? '<table class="table table-sm text-start mb-0"><thead><tr><th>Date</th><th>Mahina</th><th class="text-end">Rakam</th></tr></thead><tbody>' + hist + '</tbody></table>' : '<div class="text-muted">Abhi koi payment nahi hui</div>') })
+      (hist ? '<table class="table table-sm text-start mb-0"><thead><tr><th>Date</th><th>Mahina</th><th class="text-end">Rakam</th><th></th></tr></thead><tbody>' + hist + '</tbody></table>' : '<div class="text-muted">Abhi koi payment nahi hui</div>') })
     .then(function (r) { if (r.isConfirmed) recvFee(id); else if (r.isDenied) editFee(id); });
 }
 function editFee(id) {
@@ -162,17 +164,17 @@ function renderFeeDue(s) {
 
 /* ---------- EXAMS ---------- */
 function getExams() { return loadArr('sh_exams', []) || []; }
+function examAud(e) { return { stream: e.stream === 'all' || !e.stream ? 'both' : e.stream, cls: e.cls, msec: e.msec || 'all' }; }
+function examFor(e, s) { return audience(examAud(e), s); }
 function createExam() {
-  var month = document.getElementById('exMonth').value, title = document.getElementById('exTitle').value.trim(), fee = +document.getElementById('exFee').value, cls = document.getElementById('exClass').value;
+  var month = $v('exMonth'), title = $v('exTitle').trim(), fee = +$v('exFee'), ty = $v('exType');
   if (!month || !title || !(fee >= 0)) { toast('error', 'Poora likhein', 'Month, naam aur exam fee zaroori hain'); return; }
-  var all = getExams(), ex = { id: 'EX-' + (all.length + 1), month: month, title: title, fee: fee, cls: cls, stream: $v('exStream') || 'all' }; all.unshift(ex); saveArr('sh_exams', all);
-  var n = 0; DEMO_STUDENTS.forEach(function (s) { if (examFor(ex, s)) { n++; notify(s.phone, 'Exam Notice: ' + title + ' (' + month + ') aa raha hai. Exam fee Rs. ' + fee + ' alag se jama karwayein.'); } });
-  for (var c = 1; c <= 8; c++) if (cls === 'all' || +cls === c) addAlert({ cls: c, section: '', msg: 'Exam: ' + title + ' — ' + month + '. Exam fee Rs. ' + fee });
-  if (ex.stream !== 'school') addAlert({ cls: 0, section: '', msg: 'Exam: ' + title + ' — ' + month + '. Exam fee Rs. ' + fee });
+  var all = getExams(), ex = { id: 'EX-' + (all.length + 1), month: month, title: title, fee: fee, stream: ty === 'both' ? 'all' : ty, cls: ty === 'madarsa' ? 'all' : $v('exClass'), msec: ty === 'school' ? 'all' : $v('exMSec') };
+  all.unshift(ex); saveArr('sh_exams', all);
+  var n = notifyAudience(examAud(ex), 'IRAA Exam Notice: ' + title + ' (' + month + ') aa raha hai. Exam fee Rs. ' + fee + ' alag se jama karwayein.');
+  addAlert({ stream: examAud(ex).stream, cls: ex.cls, section: '', msec: ex.msec, msg: 'Exam: ' + title + ' - ' + month + '. Exam fee Rs. ' + fee });
   renderExams(); toast('success', 'Exam Announce', n + ' students ko WhatsApp/SMS queue hua');
 }
-function examForStream(e, s) { var es = e.stream || 'all', st = s.stream || 'school'; return es === 'all' || st === 'both' || es === st; }
-function examFor(e, s) { return examForStream(e, s) && (e.cls === 'all' || (s.stream || 'school') === 'madarsa' || +e.cls === +s.cls); }
 function examFeeReceive(exId) {
   var id = prompt('Student ID (e.g. STU-1001) jis ne exam fee di:'); if (!id) return; var s = findStudentById(id); if (!s) { toast('error', 'Not found', id); return; }
   s.examPaid = s.examPaid || {}; s.examPaid[exId] = true; persist(); renderExams(); toast('success', 'Exam fee received', s.name);
@@ -183,7 +185,7 @@ function renderExams() {
   if (!all.length) b.innerHTML = '<tr><td colspan="6" class="text-center muted py-3">Abhi koi exam announce nahi hua</td></tr>';
   all.forEach(function (e) {
     var paid = DEMO_STUDENTS.filter(function (s) { return s.examPaid && s.examPaid[e.id]; }).length;
-    b.insertAdjacentHTML('beforeend', '<tr><td><b>' + esc(e.month) + '</b></td><td>' + esc(e.title) + '</td><td>' + (e.cls === 'all' ? 'All classes' : 'Class ' + e.cls) + ' • ' + ({ all: 'School+Madarsa', school: 'School', madarsa: 'Madarsa' }[e.stream || 'all']) + '</td><td class="fw-600">Rs. ' + e.fee + '</td><td>' + paid + ' paid</td><td class="text-end">' +
+    b.insertAdjacentHTML('beforeend', '<tr><td><b>' + esc(e.month) + '</b></td><td>' + esc(e.title) + '</td><td>' + audLabel(examAud(e)) + '</td><td class="fw-600">Rs. ' + e.fee + '</td><td>' + paid + ' paid</td><td class="text-end">' +
       '<button class="mini-btn btn-icon-success" title="Exam fee lein" onclick="examFeeReceive(\'' + e.id + '\')"><i class="fa-solid fa-money-bill-wave"></i></button><button class="mini-btn btn-icon-danger" onclick="delExam(\'' + e.id + '\')"><i class="fa-solid fa-trash"></i></button></td></tr>');
   });
 }
@@ -252,7 +254,6 @@ function renderSchoolExtras(s) {
   g('bookBody').innerHTML = bk.length ? bk.map(function (b) { return '<tr><td>' + esc(b.title) + '</td><td><span class="badge-soft bg-soft-info">' + STREAMS[b.stream] + '</span></td><td class="text-end fw-600">Rs. ' + b.price + '</td></tr>'; }).join('') +
     '<tr><td colspan="2"><b>Total</b></td><td class="text-end"><b>Rs. ' + bk.reduce(function (a, b) { return a + b.price; }, 0) + '</b></td></tr>' : '<tr><td colspan="3" class="text-center muted py-3">Is class ki books abhi upload nahi hui</td></tr>';
   g('madarsaCard').style.display = st === 'school' ? 'none' : '';
-  ['cardTests', 'cardMarks'].forEach(function (i) { if (g(i)) g(i).style.display = st === 'madarsa' ? 'none' : ''; });
   if (g('portalBadge')) g('portalBadge').textContent = { school: 'School Portal', madarsa: 'Madarsa Portal', both: 'School + Madarsa Portal' }[st];
   document.title = 'IRAA — ' + { school: 'School', madarsa: 'Madarsa', both: 'School + Madarsa' }[st] + ' Portal';
   g('madarsaInfo').textContent = 'Madarsa Section ' + (s.madarsaSection || s.section || 'A') + ' • ' + STREAMS[st];
@@ -427,4 +428,90 @@ function renderAttendance() {
     if (!wd) rows = '<tr><td colspan="5" class="text-center muted py-3">Is mahine ka koi attendance record nahi — ID card scan hone par yahan aayega</td></tr>' + rows;
   }
   body.innerHTML = rows || '<tr><td colspan="5" class="text-center muted py-3">Koi student nahi mila</td></tr>';
+}
+
+/* ---------- AUDIENCE: School (class) / Madarsa (section) / School + Madarsa ---------- */
+function audience(a, s) {
+  var st = a.stream || 'school', ss = s.stream || 'school'; if (st === 'all') st = 'both';
+  var anyC = a.cls === 'all' || a.cls === undefined || a.cls === null || a.cls === '';
+  var sch = ss !== 'madarsa' && (anyC || +a.cls === +s.cls) && (!a.section || !s.section || a.section === s.section);
+  var mad = ss !== 'school' && (!a.msec || a.msec === 'all' || (s.madarsaSection || 'A') === a.msec);
+  return st === 'school' ? sch : st === 'madarsa' ? mad : (sch || mad);
+}
+function audLabel(a) {
+  var st = a.stream || 'school'; if (st === 'all') st = 'both';
+  var anyC = a.cls === 'all' || a.cls === undefined || a.cls === null || a.cls === '', anyM = !a.msec || a.msec === 'all';
+  var c = anyC ? 'Sab classes' : 'Class ' + a.cls, m = anyM ? 'Sab sections' : 'Section ' + a.msec;
+  if (st === 'school') return 'School - ' + c; if (st === 'madarsa') return 'Madarsa - ' + m;
+  return 'School + Madarsa' + ((anyC && anyM) ? '' : ' (' + (anyC ? 'Sab classes' : c) + ' / ' + (anyM ? 'Sab sections' : 'Section ' + a.msec) + ')');
+}
+function tClsText(t) {
+  var st = t.stream || 'school';
+  if (st === 'madarsa') return 'Madarsa Section ' + t.msec; if (st === 'both') return 'Class ' + t.cls + ' + Madarsa ' + t.msec;
+  return 'Class ' + t.cls + (t.section ? '-' + t.section : '');
+}
+function testStudents(t) { return DEMO_STUDENTS.filter(function (s) { return audience(t, s); }); }
+function notifyAudience(a, text) { var n = 0; DEMO_STUDENTS.forEach(function (s) { if (audience(a, s)) { notify(s.phone, text); n++; } }); return n; }
+function initAudienceForms() { ['t', 'ex', 'msg'].forEach(function (p) { if (document.getElementById(p + 'Type')) streamFields(p); }); }
+
+/* tests: stream + class/section */
+function testMsg(t, pre) { return (pre || '') + t.type + ' Test - ' + t.subject + ' (' + tClsText(t) + ') on ' + weekdayShort(t.date) + ' ' + fmtDate(t.date) + ' at ' + t.time + '. Total marks: ' + t.totalMarks; }
+function addTestRec(t) {
+  var n = TESTS.length; TESTS.forEach(function (x) { var v = parseInt((x.id || '').replace(/[^0-9]/g, ''), 10); if (v > n) n = v; });
+  t.id = 'T-' + (n + 1); TESTS.push(t); saveTests();
+  addAlert({ stream: t.stream, cls: t.cls, section: t.section || '', msec: t.msec, msg: testMsg(t) });
+  t.notified = notifyAudience(t, 'IRAA: ' + testMsg(t)); return t;
+}
+function updateTestRec(t) {
+  var f = TESTS.find(function (x) { return x.id === t.id; }); if (!f) return null;
+  ['type', 'stream', 'cls', 'section', 'msec', 'subject', 'date', 'time', 'totalMarks'].forEach(function (k) { f[k] = t[k]; }); saveTests();
+  addAlert({ stream: f.stream, cls: f.cls, section: f.section || '', msec: f.msec, msg: testMsg(f, 'Updated - ') });
+  f.notified = notifyAudience(f, 'IRAA: ' + testMsg(f, 'Updated - ')); return f;
+}
+function mkFields() {
+  var v = $v('mkType'); document.getElementById('mkClsBox').style.display = v === 'school' ? '' : 'none'; document.getElementById('mkSecBox').style.display = v === 'madarsa' ? '' : 'none';
+  mkRefresh();
+}
+function mkRefresh() { fillTestsSelect(false); renderMarksTable(); }
+function testPassesMk(t) {
+  if (!document.getElementById('mkType')) return true; var ty = $v('mkType'), st = t.stream || 'school'; if (!ty) return true;
+  if (st !== ty && st !== 'both') return false;
+  if (ty === 'school' && $v('mkClass') && +t.cls !== +$v('mkClass')) return false;
+  if (ty === 'madarsa' && $v('mkSec') && t.msec !== $v('mkSec')) return false; return true;
+}
+
+/* messages: School / Madarsa / dono */
+function sendMessage(d) {
+  var all = getMessages(), msg = { id: 'MSG-' + (all.length + 101), from: 'Admin', toRole: 'students', stream: d.stream, cls: d.cls, msec: d.msec, subject: d.subject, body: d.body,
+    at: new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }), seenBy: [] };
+  all.unshift(msg); saveArr('sh_messages', all); msg.notified = notifyAudience(msg, 'IRAA: ' + d.subject + ' - ' + d.body); return msg;
+}
+
+/* ---------- FEE GALTI THEEK KARNA: payment edit / delete ---------- */
+function recalcStatus(f) { f.status = f.remaining <= 0 && f.monthly > 0 ? 'Paid' : f.paid > 0 ? 'Pending' : 'Unpaid'; }
+function editPayment(sid, i) {
+  var s = findStudentById(sid), p = s && s.payments[i], f = s && s.fee; if (!p) return; if (Swal.close) Swal.close();
+  var v = prompt('Sahi amount likhein (Rs.). Pehle likha tha: ' + p.amount, p.amount); if (v === null || isNaN(+v) || +v <= 0) return;
+  var nv = +v, d = nv - p.amount, nf = p.penalty || 0;
+  if (p.penalty) { var fv = prompt('Late fine (Rs.). Pehle: ' + p.penalty, p.penalty); if (fv !== null && !isNaN(+fv)) nf = +fv; }
+  if (p.month === f.month) {
+    if (d > f.remaining) { toast('error', 'Amount zyada hai', 'Is tarah fee baqi se zyada ho jati hai (baqi sirf ' + rs(f.remaining) + ')'); return; }
+    f.paid += d; f.remaining -= d; f.fineTotal = Math.max(0, (f.fineTotal || 0) + nf - (p.penalty || 0)); recalcStatus(f);
+  }
+  p.amount = nv; p.penalty = nf; p.edited = true; persist(); renderFeeTable();
+  notify(s.phone, 'IRAA: ' + s.name + ' ki fee ka record theek kiya gaya. Sahi jama: Rs. ' + nv + '. Baqi: Rs. ' + f.remaining + '.');
+  toast('success', 'Payment theek ho gayi', rs(nv) + ' • baqi ' + rs(f.remaining)); feeDetail(sid);
+}
+function deletePayment(sid, i) {
+  var s = findStudentById(sid), p = s && s.payments[i], f = s && s.fee; if (!p) return; if (Swal.close) Swal.close();
+  if (!confirm('Yeh payment (' + rs(p.amount) + ') hata dein? Fee wapas baqi ho jayegi.')) { feeDetail(sid); return; }
+  if (p.month === f.month) { f.paid = Math.max(0, f.paid - p.amount); f.remaining += p.amount; f.fineTotal = Math.max(0, (f.fineTotal || 0) - (p.penalty || 0)); recalcStatus(f); }
+  s.payments.splice(i, 1); persist(); renderFeeTable();
+  notify(s.phone, 'IRAA: ' + s.name + ' ki ek payment ghalti se darj hui thi, hata di gayi. Baqi: Rs. ' + f.remaining + '.');
+  toast('success', 'Payment hata di', 'Fee wapas baqi: ' + rs(f.remaining)); feeDetail(sid);
+}
+
+function markMessageSeen(msgId, readerId) {
+  var all = getMessages(), m = all.find(function (x) { return x.id === msgId; }); if (!m) return;
+  if (!m.seenBy) m.seenBy = []; if (m.seenBy.indexOf(readerId) === -1) m.seenBy.push(readerId); saveArr('sh_messages', all);
 }
